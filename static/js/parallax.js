@@ -1,54 +1,66 @@
-// --- CONFIGURATION ---
-const images = ["/images/tree.jpg", "/images/Petar.jpg", "/images/Ema.jpg"];
+(function () {
+  // --- CONFIGURATION ---
+  // Ensure these match your filenames EXACTLY (Case Sensitive!)
+  const images = ["/images/tree.jpg", "/images/Petar.jpg", "/images/Ema.jpg"];
 
-// --- LOGIC ---
-let currentIdx = 0;
-let isScrolling = false;
+  // Safety: Only run on Home
+  if (!document.body.classList.contains("home")) return;
 
-// 1. SAFETY CHECK: Only run on the Homepage
-// PaperMod adds the class 'home' to the body tag on the main page.
-if (!document.body.classList.contains("home")) {
-  // If we are NOT on home, stop here. Do nothing.
-  throw new Error("Not homepage");
-}
+  // --- SETUP ---
+  let currentIdx = 0;
+  let isTransitioning = false;
 
-// 2. PRELOAD IMAGES
-images.forEach((src) => {
-  const img = new Image();
-  img.src = src;
-});
+  // 1. Create the Background Elements safely
+  const bgDiv = document.createElement("div");
+  bgDiv.id = "my-background";
+  document.body.appendChild(bgDiv);
 
-// 3. PARALLAX (Mouse Move)
-document.addEventListener("mousemove", function (e) {
-  const moveStrength = 50;
-  const mouseX = e.clientX / window.innerWidth;
-  const mouseY = e.clientY / window.innerHeight;
+  const overlayDiv = document.createElement("div");
+  overlayDiv.id = "my-overlay";
+  document.body.appendChild(overlayDiv);
 
-  const moveX = 50 + (mouseX * moveStrength - moveStrength / 2);
-  const moveY = 50 + (mouseY * moveStrength - moveStrength / 2);
+  // 2. Preload Images
+  images.forEach((src) => {
+    new Image().src = src;
+  });
 
-  document.body.style.backgroundPosition = `${moveX}% ${moveY}%`;
-});
+  // 3. The Easy Fade Logic
+  function changeImage(direction) {
+    if (isTransitioning) return;
+    isTransitioning = true;
 
-// 4. SCROLL LOOP (Instant Change)
-document.addEventListener("wheel", function (e) {
-  if (isScrolling) return;
+    // Calculate next index
+    if (direction === "down") {
+      currentIdx = (currentIdx + 1) % images.length;
+    } else {
+      currentIdx = (currentIdx - 1 + images.length) % images.length;
+    }
 
-  // Detect direction
-  if (e.deltaY > 0) {
-    // Scroll Down: 0 -> 1 -> 2 -> 0 -> 1...
-    currentIdx = (currentIdx + 1) % images.length;
-  } else {
-    // Scroll Up: 0 -> 2 -> 1 -> 0...
-    currentIdx = (currentIdx - 1 + images.length) % images.length;
+    // A. Fade OUT
+    bgDiv.style.opacity = "0";
+
+    // B. Wait for fade (400ms), then Swap & Fade IN
+    setTimeout(() => {
+      bgDiv.style.backgroundImage = `url('${images[currentIdx]}')`;
+      bgDiv.style.opacity = "1";
+
+      // Reset cooldown
+      setTimeout(() => {
+        isTransitioning = false;
+      }, 400);
+    }, 400); // This matches the CSS transition time
   }
 
-  // Apply Change
-  document.body.style.backgroundImage = `url('${images[currentIdx]}')`;
+  // 4. Parallax (Mouse Move) - Keeps it simple
+  document.addEventListener("mousemove", (e) => {
+    const x = (e.clientX / window.innerWidth - 0.5) * 20; // 20px movement
+    const y = (e.clientY / window.innerHeight - 0.5) * 20;
+    bgDiv.style.transform = `translate(${x}px, ${y}px)`;
+  });
 
-  // Quick Cooldown to prevent spinning too fast
-  isScrolling = true;
-  setTimeout(() => {
-    isScrolling = false;
-  }, 200);
-});
+  // 5. Scroll Listener
+  document.addEventListener("wheel", (e) => {
+    if (e.deltaY > 0) changeImage("down");
+    else changeImage("up");
+  });
+})();

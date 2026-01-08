@@ -1,0 +1,279 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Neda's Little Shop</title>
+        <style>
+            * {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+            }
+            body,
+            html {
+                height: 100%;
+                width: 100%;
+                overflow: hidden;
+                background: #000;
+                font-family: sans-serif;
+            }
+
+            #bg-container {
+                position: absolute;
+                top: -5%;
+                left: -5%;
+                width: 110%;
+                height: 110%;
+                z-index: 1;
+            }
+
+            .bg-img {
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background-size: cover;
+                background-position: center;
+                opacity: 0;
+                animation: fadeLoop 18s infinite;
+            }
+
+            .bg-img:nth-child(1) {
+                background-image: url("/images/1.jpg");
+                animation-delay: 0s;
+            }
+            .bg-img:nth-child(2) {
+                background-image: url("/images/2.jpg");
+                animation-delay: 6s;
+            }
+            .bg-img:nth-child(3) {
+                background-image: url("/images/3.jpg");
+                animation-delay: 12s;
+            }
+
+            @keyframes fadeLoop {
+                0% {
+                    opacity: 0;
+                }
+                10% {
+                    opacity: 1;
+                }
+                33% {
+                    opacity: 1;
+                }
+                43% {
+                    opacity: 0;
+                }
+                100% {
+                    opacity: 0;
+                }
+            }
+
+            #center-stage {
+                position: relative;
+                z-index: 10;
+                height: 100%;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+            }
+
+            .cloud-wrapper {
+                position: relative;
+                width: 380px;
+                height: 200px;
+                cursor: pointer;
+                transition: transform 0.3s ease;
+                filter: drop-shadow(0 8px 32px rgba(0, 0, 0, 0.5));
+            }
+
+            .cloud-wrapper:hover {
+                transform: scale(1.03);
+            }
+
+            .cloud-svg {
+                position: absolute;
+                width: 100%;
+                height: 100%;
+                overflow: visible;
+            }
+
+            .cloud-shape {
+                fill: rgba(0, 0, 0, 0.55);
+                transition: fill 0.3s ease;
+            }
+
+            .cloud-wrapper:hover .cloud-shape {
+                fill: rgba(0, 0, 0, 0.7);
+            }
+
+            .cloud-text {
+                position: absolute;
+                width: 100%;
+                height: 100%;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+                text-align: center;
+                color: white;
+                text-decoration: none;
+                z-index: 2;
+            }
+
+            .content-default {
+                display: block;
+                transition: opacity 0.3s ease;
+            }
+            .content-hover {
+                display: none;
+                opacity: 0;
+                transition: opacity 0.3s ease;
+            }
+
+            .cloud-wrapper:hover .content-default {
+                display: none;
+            }
+            .cloud-wrapper:hover .content-hover {
+                display: block;
+                opacity: 1;
+                animation: fadeIn 0.4s;
+            }
+
+            @keyframes fadeIn {
+                from {
+                    opacity: 1;
+                    transform: scale(0.95);
+                }
+                to {
+                    opacity: 1;
+                    transform: scale(1);
+                }
+            }
+
+            h1 {
+                font-size: 1.8rem;
+                margin-bottom: 0.3rem;
+                font-weight: 700;
+                letter-spacing: 1px;
+            }
+            p {
+                font-size: 1rem;
+                font-weight: 300;
+                opacity: 0.9;
+            }
+            .hover-text {
+                font-size: 1.3rem;
+                font-weight: 500;
+                letter-spacing: 2px;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="bg-container">
+            <div class="bg-img"></div>
+            <div class="bg-img"></div>
+            <div class="bg-img"></div>
+        </div>
+
+        <div id="center-stage">
+            <a href="/products" class="cloud-wrapper">
+                <svg class="cloud-svg" viewBox="0 0 380 200">
+                    <defs>
+                        <filter
+                            id="blur-filter"
+                            x="-20%"
+                            y="-20%"
+                            width="140%"
+                            height="140%"
+                        >
+                            <feGaussianBlur
+                                in="SourceGraphic"
+                                stdDeviation="8"
+                            />
+                        </filter>
+                        <clipPath id="cloud-clip">
+                            <path
+                                d="
+                            M60,130
+                            Q30,130 30,100
+                            Q30,70 60,65
+                            Q65,30 110,30
+                            Q150,10 190,40
+                            Q230,10 270,30
+                            Q315,30 320,65
+                            Q350,70 350,100
+                            Q350,130 320,130
+                            Q330,160 300,170
+                            Q280,190 240,180
+                            L140,180
+                            Q100,190 80,170
+                            Q50,160 60,130
+                            Z
+                        "
+                            />
+                        </clipPath>
+                    </defs>
+
+                    <!-- Blur background clipped to cloud -->
+                    <g clip-path="url(#cloud-clip)">
+                        <rect
+                            x="0"
+                            y="0"
+                            width="380"
+                            height="200"
+                            fill="rgba(200,200,200,0.5)"
+                            filter="url(#blur-filter)"
+                        />
+                    </g>
+
+                    <!-- Cloud shape -->
+                    <path
+                        class="cloud-shape"
+                        d="
+                    M60,130
+                    Q30,130 30,100
+                    Q30,70 60,65
+                    Q65,30 110,30
+                    Q150,10 190,40
+                    Q230,10 270,30
+                    Q315,30 320,65
+                    Q350,70 350,100
+                    Q350,130 320,130
+                    Q330,160 300,170
+                    Q280,190 240,180
+                    L140,180
+                    Q100,190 80,170
+                    Q50,160 60,130
+                    Z
+                "
+                    />
+                </svg>
+
+                <div class="cloud-text">
+                    <div class="content-default">
+                        <h1>Neda's Little Shop</h1>
+                        <p>High-Quality Home-Made</p>
+                    </div>
+                    <div class="content-hover">
+                        <h1>Neda's Little Shop</h1>
+                        <span class="hover-text">Made With Love</span>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <script>
+            const bg = document.getElementById("bg-container");
+            document.addEventListener("mousemove", (e) => {
+                const x = e.clientX / window.innerWidth;
+                const y = e.clientY / window.innerHeight;
+                const moveX = -3 + x * 6;
+                const moveY = -3 + y * 6;
+                bg.style.transform = `translate(${moveX}%, ${moveY}%)`;
+            });
+        </script>
+    </body>
+</html>

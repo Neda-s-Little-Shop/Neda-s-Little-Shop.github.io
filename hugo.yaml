@@ -1,21 +1,21 @@
 baseURL: "https://Neda-s-Little-Shop.github.io/"
 languageCode: "en-us"
 title: "Neda's Little Shop"
-theme: "PaperMod"
 
 params:
   defaultTheme: auto
   profileMode:
     enabled: true
     title: "Neda's Little Shop"
-    subtitle: "High-Quality, Home-Made goods"
+    # subtitle: "High-Quality  Home-Made"
+    subtitle: "Browse Products"
     imageUrl: ""
     imageTitle: "Shop Logo"
     buttons:
       - name: "Browse Products"
         url: "/posts"
-      - name: "Contact"
-        url: "/contact"
+    #   - name: "Contact"
+    #    url: "/contact"
 
 menu:
   main:
