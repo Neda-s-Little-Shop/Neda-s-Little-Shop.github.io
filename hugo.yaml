@@ -1,17 +1,16 @@
-baseURL: "https://example.org/"
+baseURL: "https://Neda-s-Little-Shop.github.io/"
 languageCode: "en-us"
-title: "My Shop"
+title: "Neda's Little Shop"
 theme: "PaperMod"
 
 params:
   defaultTheme: auto
-  # Profile Mode: A cleaner landing page for promotions
   profileMode:
     enabled: true
-    title: "Neda´s Little Shop"
+    title: "Neda's Little Shop"
     subtitle: "High-Quality, Home-Made goods"
-    imageUrl: ""
-    imageTitle: ""
+    imageUrl: "/images/tree.jpg"
+    imageTitle: "Shop Logo"
     buttons:
       - name: "Browse Products"
         url: "/posts"

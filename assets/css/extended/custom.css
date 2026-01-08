@@ -1,0 +1,7 @@
+body {
+    /* Ensure background.jpg is in your static/images folder */
+    background-image: url("/images/tree.jpg");
+    background-size: cover;
+    background-attachment: fixed;
+    background-position: center;
+}
