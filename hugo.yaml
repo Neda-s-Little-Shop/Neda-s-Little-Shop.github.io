@@ -1,0 +1,26 @@
+baseURL: "https://example.org/"
+languageCode: "en-us"
+title: "My Shop"
+theme: "PaperMod"
+
+params:
+  defaultTheme: auto
+  # Profile Mode: A cleaner landing page for promotions
+  profileMode:
+    enabled: true
+    title: "Neda´s Little Shop"
+    subtitle: "High-Quality, Home-Made goods"
+    imageUrl: ""
+    imageTitle: ""
+    buttons:
+      - name: "Browse Products"
+        url: "/posts"
+      - name: "Contact"
+        url: "/contact"
+
+menu:
+  main:
+    - identifier: products
+      name: Products
+      url: /posts/
+      weight: 10
