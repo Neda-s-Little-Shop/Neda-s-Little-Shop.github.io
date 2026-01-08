@@ -22,3 +22,12 @@ body::before {
     background: rgba(0, 0, 0, 0.4); /* Dark overlay */
     z-index: -1;
 }
+/* Hide scrollbar ONLY on the homepage */
+body.home {
+    overflow: hidden; /* prevents scrollbars */
+}
+
+/* Ensure the background snaps instantly (No Fade) */
+body.home {
+    transition: none !important;
+}
