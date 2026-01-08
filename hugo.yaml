@@ -9,7 +9,7 @@ params:
     enabled: true
     title: "Neda's Little Shop"
     subtitle: "High-Quality, Home-Made goods"
-    imageUrl: "/images/tree.jpg"
+    imageUrl: ""
     imageTitle: "Shop Logo"
     buttons:
       - name: "Browse Products"
