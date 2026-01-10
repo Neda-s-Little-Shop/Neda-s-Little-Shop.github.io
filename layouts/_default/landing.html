@@ -163,13 +163,13 @@
 
         <div id="bg-container">
             {{ range .Params.background_images }}
-                {{ $imagePath := strings.TrimPrefix "/" . }}
+                {{ $path := strings.TrimPrefix "/" . }}
 
-                {{ $image := resources.Get $imagePath }}
+                {{ $img := resources.Get $path }}
 
-                {{ if $image }}
-                    {{ $resized := $image.Resize "1920x webp" }}
-                    <div class="bg-img" style="background-image: url('{{ $resized.RelPermalink }}');"></div>
+                {{ if $img }}
+                    {{ $final := $img.Resize "1920x webp" }}
+                    <div class="bg-img" style="background-image: url('{{ $final.RelPermalink }}');"></div>
                 {{ else }}
                     <div class="bg-img" style="background-image: url('{{ . }}');"></div>
                 {{ end }}
