@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="en">
-    <head>
+    <head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>Neda's Little Shop</title>
@@ -19,6 +19,30 @@
                 font-family: sans-serif;
             }
 
+            #top-left-btn {
+                position: absolute;
+                top: 20px;
+                left: 20px;
+                z-index: 100;  
+                cursor: pointer;
+                background: rgba(
+                    0,
+                    0,
+                    0,
+                    0.5
+                );  
+                padding: 10px;
+                border-radius: 50%;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                transition: transform 0.2s;
+            }
+
+            #top-left-btn:hover {
+                transform: scale(1.1);
+                background: rgba(0, 0, 0, 0.8);
+            }
             #bg-container {
                 position: absolute;
                 top: -5%;
@@ -41,15 +65,15 @@
             }
 
             .bg-img:nth-child(1) {
-                background-image: url("/images/1.jpg");
+                background-image: url();
                 animation-delay: 0s;
             }
             .bg-img:nth-child(2) {
-                background-image: url("/images/2.jpg");
+                background-image: url();
                 animation-delay: 6s;
             }
             .bg-img:nth-child(3) {
-                background-image: url("/images/3.jpg");
+                background-image: url();
                 animation-delay: 12s;
             }
 
@@ -172,10 +196,22 @@
         </style>
     </head>
     <body>
+        <a
+            href="/"
+            id="top-left-btn"
+        >
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="white">
+                <path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z" />
+            </svg>
+        </a>
         <div id="bg-container">
-            <div class="bg-img"></div>
-            <div class="bg-img"></div>
-            <div class="bg-img"></div>
+            
+            <div class="bg-img" style="background-image: url('/images/summer1.png');"></div>
+            
+            <div class="bg-img" style="background-image: url('/images/summer2.png');"></div>
+            
+            <div class="bg-img" style="background-image: url('/images/summer3.png');"></div>
+            
         </div>
 
         <div id="center-stage">
@@ -217,7 +253,7 @@
                         </clipPath>
                     </defs>
 
-                    <!-- Blur background clipped to cloud -->
+                    
                     <g clip-path="url(#cloud-clip)">
                         <rect
                             x="0"
@@ -229,7 +265,7 @@
                         />
                     </g>
 
-                    <!-- Cloud shape -->
+                    
                     <path
                         class="cloud-shape"
                         d="
@@ -254,11 +290,11 @@
 
                 <div class="cloud-text">
                     <div class="content-default">
-                        <h1>Neda's Little Shop</h1>
-                        <p>High-Quality Home-Made</p>
+                        <h1>Sara Partizan</h1>
+                        <p>Fresh Looks for the Season</p>
                     </div>
                     <div class="content-hover">
-                        <h1>Neda's Little Shop</h1>
+                        <h1>Sara Partizan</h1>
                         <span class="hover-text">Made With Love</span>
                     </div>
                 </div>

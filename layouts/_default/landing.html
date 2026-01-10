@@ -1,7 +1,6 @@
 <!doctype html>
 <html lang="en">
     <head>
-	<meta name="generator" content="Hugo 0.154.2"><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>Neda's Little Shop</title>
@@ -24,14 +23,14 @@
                 position: absolute;
                 top: 20px;
                 left: 20px;
-                z-index: 100;  
+                z-index: 100; /* Higher than cloud-wrapper (10) and background (1) */
                 cursor: pointer;
                 background: rgba(
                     0,
                     0,
                     0,
                     0.5
-                );  
+                ); /* Optional: backing for visibility */
                 padding: 10px;
                 border-radius: 50%;
                 display: flex;
@@ -198,7 +197,7 @@
     </head>
     <body>
         <a
-            href="/summer-sale/"
+            href="{{ if .IsHome }}/summer-sale/{{ else }}/{{ end }}"
             id="top-left-btn"
         >
             <svg width="24" height="24" viewBox="0 0 24 24" fill="white">
@@ -206,13 +205,9 @@
             </svg>
         </a>
         <div id="bg-container">
-            
-            <div class="bg-img" style="background-image: url('/images/1.jpg');"></div>
-            
-            <div class="bg-img" style="background-image: url('/images/2.jpg');"></div>
-            
-            <div class="bg-img" style="background-image: url('/images/3.jpg');"></div>
-            
+            {{ range .Params.background_images }}
+            <div class="bg-img" style="background-image: url('{{ . }}');"></div>
+            {{ end }}
         </div>
 
         <div id="center-stage">
@@ -254,7 +249,7 @@
                         </clipPath>
                     </defs>
 
-                    
+                    <!-- Blur background clipped to cloud -->
                     <g clip-path="url(#cloud-clip)">
                         <rect
                             x="0"
@@ -266,7 +261,7 @@
                         />
                     </g>
 
-                    
+                    <!-- Cloud shape -->
                     <path
                         class="cloud-shape"
                         d="
@@ -291,11 +286,11 @@
 
                 <div class="cloud-text">
                     <div class="content-default">
-                        <h1>Neda&#39;s Little Shop</h1>
-                        <p>High-Quality Home-Made</p>
+                        <h1>{{ .Title }}</h1>
+                        <p>{{ .Params.subtitle }}</p>
                     </div>
                     <div class="content-hover">
-                        <h1>Neda&#39;s Little Shop</h1>
+                        <h1>{{ .Title }}</h1>
                         <span class="hover-text">Made With Love</span>
                     </div>
                 </div>
