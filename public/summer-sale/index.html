@@ -4,6 +4,21 @@
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>Sara Partizan</title>
+
+        
+        
+            
+            
+            
+
+            
+                
+                
+                
+                <link rel="preload" as="image" href="/images/summer1_hu_c3e049630d1924f7.webp">
+            
+        
+
         <style>
              
             * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -43,6 +58,7 @@
                 width: 110%;
                 height: 110%;
                 z-index: 1;
+                will-change: transform;
             }
             .bg-img {
                 position: absolute;
@@ -89,41 +105,14 @@
                 width: 100%;
                 height: auto;
                 display: block;
-                 
                 transform: translate(var(--move-x), var(--move-y));
                 opacity: var(--base-op);
-                transition: opacity 0.3s ease;
+                transition: opacity 0.4s ease, transform 0.4s cubic-bezier(0.25, 1, 0.5, 1);
             }
 
-             
-
-             
             .cloud-wrapper:hover .center-img {
-                animation: imagePop 0.4s forwards;
-            }
-
-            @keyframes imagePop {
-                from {
-                     
-                    opacity: var(--base-op);
-                    transform: translate(var(--move-x), var(--move-y)) scale(1);
-                }
-                to {
-                     
-                    opacity: 1;
-                    transform: translate(var(--move-x), var(--move-y)) scale(1.05);
-                }
-            }
-
-             
-            .cloud-wrapper:hover .content-hover {
-                display: block;
-                animation: textPop 0.4s forwards;
-            }
-
-            @keyframes textPop {
-                from { opacity: 0; transform: scale(0.95); }
-                to { opacity: 1; transform: scale(1.05); }
+                opacity: 1;
+                transform: translate(var(--move-x), var(--move-y)) scale(1.05);
             }
 
              
@@ -131,19 +120,24 @@
                 position: absolute;
                 width: 100%;
                 height: 100%;
-                display: flex;
-                flex-direction: column;
-                justify-content: center;
-                align-items: center;
-                text-align: center;
+                display: grid;
+                place-items: center;
                 z-index: 2;
                 pointer-events: none;
             }
 
-            .content-default { display: block; transition: opacity 0.3s ease; }
-            .content-hover { display: none; opacity: 0; }
+            .content-default, .content-hover {
+                grid-area: 1 / 1;
+                text-align: center;
+                transition: opacity 0.4s ease, transform 0.4s ease;
+                will-change: opacity, transform;
+            }
 
-            .cloud-wrapper:hover .content-default { display: none; }
+            .content-default { opacity: 1; transform: scale(1); }
+            .content-hover { opacity: 0; transform: scale(0.95); }
+
+            .cloud-wrapper:hover .content-default { opacity: 0; transform: scale(1.05); }
+            .cloud-wrapper:hover .content-hover { opacity: 1; transform: scale(1); }
 
             h1 { font-size: 1.8rem; margin-bottom: 0.3rem; font-weight: 700; letter-spacing: 1px; }
             p { font-size: 1rem; font-weight: 300; opacity: 0.9; }
@@ -153,7 +147,7 @@
     </head>
     <body>
 
-        <a href="/" id="top-btn">
+        <a href="/" id="top-btn" aria-label="Toggle Page">
             
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="white"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
             
@@ -162,27 +156,42 @@
         <div id="bg-container">
             
                 
-
                 
 
                 
-                    <div class="bg-img" style="background-image: url('/images/summer1.png');"></div>
+                    
+                    
+                    
+                    
+                    
+
+                    <div class="bg-img" style="background-image: url('/images/summer1_hu_c3e049630d1924f7.webp');"></div>
                 
             
                 
-
                 
 
                 
-                    <div class="bg-img" style="background-image: url('/images/summer2.png');"></div>
+                    
+                    
+                    
+                    
+                    
+
+                    <div class="bg-img" style="background-image: url('/images/2_hu_8ed175bf1f77b836.webp');"></div>
                 
             
                 
-
                 
 
                 
-                    <div class="bg-img" style="background-image: url('/images/summer3.png');"></div>
+                    
+                    
+                    
+                    
+                    
+
+                    <div class="bg-img" style="background-image: url('/images/summer3_hu_d3a7d143411afe74.webp');"></div>
                 
             
         </div>
@@ -216,12 +225,18 @@
 
         <script>
             const bg = document.getElementById("bg-container");
+            let rafId = null;
+
             document.addEventListener("mousemove", (e) => {
-                const x = e.clientX / window.innerWidth;
-                const y = e.clientY / window.innerHeight;
-                const moveX = -3 + x * 6;
-                const moveY = -3 + y * 6;
-                bg.style.transform = `translate(${moveX}%, ${moveY}%)`;
+                if (rafId) return;
+                rafId = requestAnimationFrame(() => {
+                    const x = e.clientX / window.innerWidth;
+                    const y = e.clientY / window.innerHeight;
+                    const moveX = -3 + x * 6;
+                    const moveY = -3 + y * 6;
+                    bg.style.transform = `translate3d(${moveX}%, ${moveY}%, 0)`;
+                    rafId = null;
+                });
             });
         </script>
     </body>

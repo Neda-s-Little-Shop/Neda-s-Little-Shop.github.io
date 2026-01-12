@@ -12,6 +12,6 @@ pos_y: "0px"              # Shifted slightly up
 # -----------------------
 background_images:
 - "/images/summer1.png"
-- "/images/summer2.png"
+- "/images/2.jpg"
 - "/images/summer3.png"
 ---
