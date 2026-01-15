@@ -1,0 +1,2420 @@
+
+<file path="hugo.toml">
+baseURL = 'http://localhost:1313/'
+languageCode = 'en-us'
+title = "Neda's Little Shop"
+[params]
+  # Default images if a folder is empty (Safety)
+  default_gallery_image = "/images/placeholder.jpg"
+
+</file>
+
+<file path="hugo.yaml">
+baseURL: "https://Neda-s-Little-Shop.github.io/"
+languageCode: "en-us"
+title: "Neda's Little Shop"
+
+params:
+  defaultTheme: auto
+  profileMode:
+    enabled: true
+    title: "Neda's Little Shop"
+    # subtitle: "High-Quality  Home-Made"
+    subtitle: "Browse Products"
+    imageUrl: ""
+    imageTitle: "Shop Logo"
+    buttons:
+      - name: "Browse Products"
+        url: "/posts"
+    #   - name: "Contact"
+    #    url: "/contact"
+
+menu:
+  main:
+    - identifier: products
+      name: Products
+      url: /posts/
+      weight: 10
+
+</file>
+
+<file path="./hugo.yaml">
+baseURL: "https://Neda-s-Little-Shop.github.io/"
+languageCode: "en-us"
+title: "Neda's Little Shop"
+
+params:
+  defaultTheme: auto
+  profileMode:
+    enabled: true
+    title: "Neda's Little Shop"
+    # subtitle: "High-Quality  Home-Made"
+    subtitle: "Browse Products"
+    imageUrl: ""
+    imageTitle: "Shop Logo"
+    buttons:
+      - name: "Browse Products"
+        url: "/posts"
+    #   - name: "Contact"
+    #    url: "/contact"
+
+menu:
+  main:
+    - identifier: products
+      name: Products
+      url: /posts/
+      weight: 10
+
+</file>
+
+<file path="./hugo.toml">
+baseURL = 'http://localhost:1313/'
+languageCode = 'en-us'
+title = "Neda's Little Shop"
+[params]
+  # Default images if a folder is empty (Safety)
+  default_gallery_image = "/images/placeholder.jpg"
+
+</file>
+
+<file path="./hugo_context.txt">
+
+</file>
+
+<file path="./static/js/parallax.js">
+(function () {
+  // --- CONFIGURATION ---
+  // Ensure these match your filenames EXACTLY (Case Sensitive!)
+  const images = ["/images/tree.jpg", "/images/Petar.jpg", "/images/Ema.jpg"];
+
+  // Safety: Only run on Home
+  if (!document.body.classList.contains("home")) return;
+
+  // --- SETUP ---
+  let currentIdx = 0;
+  let isTransitioning = false;
+
+  // 1. Create the Background Elements safely
+  const bgDiv = document.createElement("div");
+  bgDiv.id = "my-background";
+  document.body.appendChild(bgDiv);
+
+  const overlayDiv = document.createElement("div");
+  overlayDiv.id = "my-overlay";
+  document.body.appendChild(overlayDiv);
+
+  // 2. Preload Images
+  images.forEach((src) => {
+    new Image().src = src;
+  });
+
+  // 3. The Easy Fade Logic
+  function changeImage(direction) {
+    if (isTransitioning) return;
+    isTransitioning = true;
+
+    // Calculate next index
+    if (direction === "down") {
+      currentIdx = (currentIdx + 1) % images.length;
+    } else {
+      currentIdx = (currentIdx - 1 + images.length) % images.length;
+    }
+
+    // A. Fade OUT
+    bgDiv.style.opacity = "0";
+
+    // B. Wait for fade (400ms), then Swap & Fade IN
+    setTimeout(() => {
+      bgDiv.style.backgroundImage = `url('${images[currentIdx]}')`;
+      bgDiv.style.opacity = "1";
+
+      // Reset cooldown
+      setTimeout(() => {
+        isTransitioning = false;
+      }, 400);
+    }, 400); // This matches the CSS transition time
+  }
+
+  // 4. Parallax (Mouse Move) - Keeps it simple
+  document.addEventListener("mousemove", (e) => {
+    const x = (e.clientX / window.innerWidth - 0.5) * 20; // 20px movement
+    const y = (e.clientY / window.innerHeight - 0.5) * 20;
+    bgDiv.style.transform = `translate(${x}px, ${y}px)`;
+  });
+
+  // 5. Scroll Listener
+  document.addEventListener("wheel", (e) => {
+    if (e.deltaY > 0) changeImage("down");
+    else changeImage("up");
+  });
+})();
+
+</file>
+
+<file path="./layouts/_default/landing.html">
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>{{ .Title }}</title>
+
+        {{/* --- LCP OPTIMIZATION --- */}}
+        {{ if .Params.background_images }}
+            {{ $firstBg := index .Params.background_images 0 }}
+            {{ $path := strings.TrimPrefix "/" $firstBg }}
+            {{ $img := resources.Get $path }}
+            {{ if $img }}
+                {{ $oriented := $img.Filter (images.AutoOrient) }}
+                {{ $final := $oriented.Resize "1920x webp" }}
+                <link rel="preload" as="image" href="{{ $final.RelPermalink }}">
+            {{ end }}
+        {{ end }}
+
+        <style>
+            /* --- RESET & BASIC SETUP --- */
+            * { margin: 0; padding: 0; box-sizing: border-box; }
+            body, html {
+                height: 100%; width: 100%;
+                overflow: hidden;
+                background: #000;
+                font-family: sans-serif;
+            }
+
+            /* --- NAVIGATION BUTTONS --- */
+            .nav-btn {
+                position: absolute;
+                top: 20px;
+                z-index: 100;
+                cursor: pointer;
+                background: rgba(0,0,0,0.5);
+                padding: 10px;
+                border-radius: 50%;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                transition: transform 0.2s, background 0.2s;
+                border: 2px solid rgba(255,255,255,0.2);
+            }
+            .nav-btn:hover {
+                transform: scale(1.1);
+                background: rgba(0,0,0,0.8);
+                border-color: white;
+            }
+            /* Position Logic */
+            .left-btn { left: 20px; }
+            .right-btn { right: 20px; }
+
+            /* --- BACKGROUND SLIDESHOW --- */
+            #bg-container {
+                position: absolute;
+                top: -5%; left: -5%;
+                width: 110%; height: 110%;
+                z-index: 1;
+                will-change: transform;
+            }
+            .bg-img {
+                position: absolute;
+                top: 0; left: 0;
+                width: 100%; height: 100%;
+                background-size: cover;
+                background-position: center;
+                opacity: 0;
+                animation: fadeLoop 18s infinite;
+            }
+            .bg-img:nth-child(1) { animation-delay: 0s; }
+            .bg-img:nth-child(2) { animation-delay: 6s; }
+            .bg-img:nth-child(3) { animation-delay: 12s; }
+
+            @keyframes fadeLoop {
+                0% { opacity: 0; } 10% { opacity: 1; } 33% { opacity: 1; } 43% { opacity: 0; } 100% { opacity: 0; }
+            }
+
+            /* --- CENTER STAGE --- */
+            #center-stage {
+                position: relative;
+                z-index: 10;
+                height: 100%; width: 100%;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                pointer-events: none;
+            }
+
+            .cloud-wrapper {
+                position: relative;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+                cursor: pointer;
+                pointer-events: auto;
+                text-decoration: none;
+            }
+
+            /* --- IMAGE STYLES --- */
+            .center-img {
+                width: 100%; height: auto;
+                display: block;
+                transform: translate(var(--move-x), var(--move-y));
+                opacity: var(--base-op);
+                transition: opacity 0.4s ease, transform 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+            }
+
+            .cloud-wrapper:hover .center-img {
+                opacity: 1;
+                transform: translate(var(--move-x), var(--move-y)) scale(1.05);
+            }
+
+            /* --- TEXT STYLES (GRID STACKING) --- */
+            .cloud-text {
+                position: absolute;
+                width: 100%; height: 100%;
+                display: grid;
+                place-items: center;
+                z-index: 2;
+                pointer-events: none;
+            }
+
+            .content-default, .content-hover {
+                grid-area: 1 / 1;
+                text-align: center;
+                transition: opacity 0.4s ease, transform 0.4s ease;
+                will-change: opacity, transform;
+            }
+
+            .content-default { opacity: 1; transform: scale(1); }
+            .content-hover { opacity: 0; transform: scale(0.95); }
+
+            .cloud-wrapper:hover .content-default { opacity: 0; transform: scale(1.05); }
+            .cloud-wrapper:hover .content-hover { opacity: 1; transform: scale(1); }
+
+            h1 { font-size: 1.8rem; margin-bottom: 0.3rem; font-weight: 700; letter-spacing: 1px; }
+            p { font-size: 1rem; font-weight: 300; opacity: 0.9; }
+            .hover-text { font-size: 1.3rem; font-weight: 500; letter-spacing: 2px; }
+
+        </style>
+    </head>
+    <body>
+
+        {{ if .Params.left_link }}
+        <a href="{{ .Params.left_link }}" class="nav-btn left-btn" aria-label="Switch Landing">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="white"><path d="M6.99 11L3 15l3.99 4v-3H14v-2H6.99v-3zM21 9l-3.99-4v3H10v2h7.01v3L21 9z"/></svg>
+        </a>
+        {{ end }}
+
+        {{ if .Params.right_link }}
+        <a href="{{ .Params.right_link }}" class="nav-btn right-btn" aria-label="Go to Gallery">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="white"><path d="M4 11h5V5H4v6zm0 7h5v-6H4v6zm6 0h5v-6h-5v6zm6 0h5v-6h-5v6zm-6-7h5V5h-5v6zm6-6v6h5V5h-5z"/></svg>
+        </a>
+        {{ end }}
+
+        <div id="bg-container">
+            {{ range .Params.background_images }}
+                {{ $path := strings.TrimPrefix "/" . }}
+                {{ $img := resources.Get $path }}
+                {{ if $img }}
+                    {{ $oriented := $img.Filter (images.AutoOrient) }}
+                    {{ $final := $oriented.Resize "1920x webp" }}
+                    <div class="bg-img" style="background-image: url('{{ $final.RelPermalink }}');"></div>
+                {{ else }}
+                    {{ errorf "Image missing in assets: %s" $path }}
+                {{ end }}
+            {{ end }}
+        </div>
+
+        <div id="center-stage">
+            <a href="{{ .Params.right_link | default "#" }}"
+               class="cloud-wrapper"
+               style="width: {{ .Params.img_width | default "380px" }};">
+
+                <img src="{{ .Params.center_image }}"
+                     alt="Center Logo"
+                     class="center-img"
+                     style="
+                       --move-x: {{ .Params.pos_x | default "0px" }};
+                       --move-y: {{ .Params.pos_y | default "0px" }};
+                       --base-op: {{ .Params.img_opacity | default "0.9" }};
+                     ">
+
+                <div class="cloud-text" style="color: {{ .Params.text_color | default "white" }};">
+                    <div class="content-default">
+                        <h1>{{ .Title }}</h1>
+                        <p>{{ .Params.subtitle }}</p>
+                    </div>
+                    <div class="content-hover">
+                        <h1>{{ .Title }}</h1>
+                        <span class="hover-text">Browse Gallery</span>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <script>
+            const bg = document.getElementById("bg-container");
+            let rafId = null;
+
+            document.addEventListener("mousemove", (e) => {
+                if (rafId) return;
+                rafId = requestAnimationFrame(() => {
+                    const x = e.clientX / window.innerWidth;
+                    const y = e.clientY / window.innerHeight;
+                    const moveX = -3 + x * 6;
+                    const moveY = -3 + y * 6;
+                    bg.style.transform = `translate3d(${moveX}%, ${moveY}%, 0)`;
+                    rafId = null;
+                });
+            });
+        </script>
+    </body>
+</html>
+
+</file>
+
+<file path="./layouts/_default/list.html">
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>{{ .Title }} | {{ .Site.Title }}</title>
+
+        <style>
+            /* --- RESET & VARIABLES --- */
+            * {
+                box-sizing: border-box;
+                margin: 0;
+                padding: 0;
+            }
+
+            :root {
+                --font-serif: "Georgia", "Times New Roman", serif;
+                --font-sans: "Helvetica Neue", Helvetica, Arial, sans-serif;
+                --color-text: #222;
+                --color-muted: #666;
+                --bg-color: #fafafa;
+                --card-bg: #ffffff;
+            }
+
+            body {
+                background-color: var(--bg-color);
+                color: var(--color-text);
+                font-family: var(--font-sans);
+                line-height: 1.6;
+            }
+
+            a {
+                text-decoration: none;
+                color: inherit;
+            }
+            ul {
+                list-style: none;
+            }
+
+            /* --- LAYOUT --- */
+            .container {
+                max-width: 900px;
+                margin: 0 auto;
+                padding: 40px 20px;
+                min-height: 100vh;
+                display: flex;
+                flex-direction: column;
+            }
+
+            /* --- HEADER & FILTER --- */
+            .list-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 50px;
+                border-bottom: 2px solid #eee;
+                padding-bottom: 20px;
+            }
+
+            .page-title {
+                font-family: var(--font-serif);
+                font-size: 2rem;
+                font-weight: 700;
+            }
+
+            /* Dropdown Styling */
+            .filter-wrapper {
+                position: relative;
+            }
+
+            .filter-btn {
+                background: #000;
+                color: #fff;
+                padding: 8px 16px;
+                border: none;
+                border-radius: 4px;
+                cursor: pointer;
+                font-family: var(--font-sans);
+                font-weight: 600;
+                font-size: 0.9rem;
+                display: flex;
+                align-items: center;
+                gap: 6px;
+            }
+
+            .filter-dropdown {
+                display: none; /* Hidden by default */
+                position: absolute;
+                top: 100%;
+                right: 0;
+                margin-top: 5px;
+                background: white;
+                min-width: 160px;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+                border-radius: 4px;
+                z-index: 100;
+                padding: 8px 0;
+            }
+
+            .filter-wrapper:hover .filter-dropdown {
+                display: block;
+            } /* CSS Hover logic */
+
+            .filter-dropdown a {
+                display: block;
+                padding: 8px 16px;
+                font-size: 0.9rem;
+                color: var(--color-text);
+                transition: background 0.2s;
+            }
+            .filter-dropdown a:hover {
+                background: #f0f0f0;
+            }
+
+            /* --- ARTICLE CARD (The Core) --- */
+            .article-card {
+                display: grid;
+                grid-template-columns: 280px 1fr; /* Image | Content */
+                gap: 30px;
+                background: var(--card-bg);
+                margin-bottom: 30px;
+                border-radius: 8px;
+                overflow: hidden; /* For image zoom containment */
+                border: 1px solid #e5e5e5;
+                position: relative;
+                transition:
+                    background-color 0.3s ease,
+                    box-shadow 0.3s ease;
+            }
+
+            .article-card:hover {
+                background-color: #f8f9fa; /* Slight dim on hover */
+                box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+            }
+
+            /* Click Overlay */
+            .card-link-overlay {
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                z-index: 10;
+            }
+
+            /* Image Side */
+            .card-image {
+                height: 100%;
+                min-height: 220px;
+                overflow: hidden;
+                background: #eee;
+            }
+
+            .card-image img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+                transition: transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            }
+
+            .article-card:hover .card-image img {
+                transform: scale(1.08); /* The Zoom Effect */
+            }
+
+            /* Text Side */
+            .card-content {
+                padding: 25px 25px 25px 0; /* No left padding because gap handles it */
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+            }
+
+            .card-date {
+                font-size: 0.85rem;
+                color: var(--color-muted);
+                margin-bottom: 8px;
+                font-weight: 500;
+            }
+
+            .card-title {
+                font-family: var(--font-serif);
+                font-size: 1.6rem;
+                margin-bottom: 12px;
+                color: var(--color-text);
+                line-height: 1.3;
+            }
+
+            .card-excerpt {
+                font-family: var(--font-sans);
+                font-size: 1rem;
+                color: #444;
+                line-height: 1.6;
+                margin-bottom: 15px;
+            }
+
+            .read-more {
+                font-size: 0.9rem;
+                font-weight: 700;
+                color: #000;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+                margin-top: auto;
+                opacity: 0.7;
+                transition: opacity 0.2s;
+            }
+            .article-card:hover .read-more {
+                opacity: 1;
+            }
+
+            /* --- PAGINATION (Arrows) --- */
+            .pagination-wrapper {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-top: auto; /* Pushes to bottom if content is short */
+                padding-top: 40px;
+                border-top: 1px solid #eee;
+            }
+
+            .arrow-btn {
+                font-size: 2rem;
+                line-height: 1;
+                padding: 0 10px;
+                color: #333;
+                transition:
+                    transform 0.2s,
+                    color 0.2s;
+                cursor: pointer;
+            }
+
+            .arrow-btn:hover {
+                color: #000;
+                transform: scale(1.2);
+            }
+            .arrow-btn.disabled {
+                opacity: 0.2;
+                pointer-events: none;
+            }
+
+            /* --- MOBILE --- */
+            @media (max-width: 768px) {
+                .article-card {
+                    grid-template-columns: 1fr; /* Stack Image on top */
+                    grid-template-rows: 200px auto;
+                }
+                .card-content {
+                    padding: 20px;
+                }
+                .list-header {
+                    flex-direction: column;
+                    align-items: flex-start;
+                    gap: 15px;
+                }
+                .filter-wrapper {
+                    align-self: flex-start;
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <header class="list-header">
+                <h1 class="page-title">{{ .Title }}</h1>
+
+                <div class="filter-wrapper">
+                    <button class="filter-btn">Filter Posts ▾</button>
+                    <div class="filter-dropdown">
+                        {{ range .Site.Taxonomies.categories }}
+                        <a href="{{ .Page.Permalink }}">{{ .Page.Title }}</a>
+                        {{ end }}
+                    </div>
+                </div>
+            </header>
+
+            <div class="article-list">
+                {{ $paginator := .Paginate (where .Data.Pages "Type" "ne"
+                "page") 5 }} {{ range $paginator.Pages }}
+                <article class="article-card">
+                    <a
+                        href="{{ .Permalink }}"
+                        class="card-link-overlay"
+                        aria-label="Read {{ .Title }}"
+                    ></a>
+
+                    <div class="card-image">
+                        {{ $img := .Resources.GetMatch .Params.featured_image }}
+                        {{/* Auto-find fallback: first image in page bundle */}}
+                        {{ if not $img }} {{ $img = .Resources.GetMatch
+                        "images/*" }} {{ end }} {{ if $img }} {{/* FIXED: The
+                        resize string is now on a single line */}} {{ $thumb :=
+                        $img.Resize "600x400 webp q90" }}
+                        <img
+                            src="{{ $thumb.RelPermalink }}"
+                            alt="{{ .Title }}"
+                            loading="lazy"
+                        />
+                        {{ else }}
+                        <div
+                            style="
+                                width: 100%;
+                                height: 100%;
+                                background: #eee;
+                                display: flex;
+                                align-items: center;
+                                justify-content: center;
+                                color: #ccc;
+                            "
+                        >
+                            No Image
+                        </div>
+                        {{ end }}
+                    </div>
+
+                    <div class="card-content">
+                        <div class="card-date">
+                            {{ .Date.Format "January 2, 2006" }}
+                        </div>
+                        <h2 class="card-title">{{ .Title }}</h2>
+                        <p class="card-excerpt">
+                            {{ .Summary | truncate 130 }}
+                        </p>
+                        <span class="read-more">Read Article &rarr;</span>
+                    </div>
+                </article>
+                {{ end }}
+            </div>
+
+            <div class="pagination-wrapper">
+                {{ if $paginator.HasPrev }}
+                <a
+                    href="{{ $paginator.Prev.URL }}"
+                    class="arrow-btn"
+                    aria-label="Previous"
+                    >&lt;</a
+                >
+                {{ else }}
+                <span class="arrow-btn disabled">&lt;</span>
+                {{ end }}
+
+                <span style="font-size: 0.9rem; color: #888"
+                    >Page {{ $paginator.PageNumber }} / {{ $paginator.TotalPages
+                    }}</span
+                >
+
+                {{ if $paginator.HasNext }}
+                <a
+                    href="{{ $paginator.Next.URL }}"
+                    class="arrow-btn"
+                    aria-label="Next"
+                    >&gt;</a
+                >
+                {{ else }}
+                <span class="arrow-btn disabled">&gt;</span>
+                {{ end }}
+            </div>
+        </div>
+    </body>
+</html>
+
+</file>
+
+<file path="./layouts/products/gallery.html">
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{{ .Title }}</title>
+
+    {{/* --- LCP: Preload First Gallery Image --- */}}
+    {{ $gallery := .Resources.Match "gallery/*" }}
+    {{ $first := index $gallery 0 }}
+    {{ if $first }}
+        {{ $preload := $first.Resize "1200x webp" }}
+        <link rel="preload" as="image" href="{{ $preload.RelPermalink }}">
+    {{ end }}
+
+    <style>
+        /* ============================================
+           RESET & BASE
+           ============================================ */
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+        html, body {
+            height: 100%;
+            overflow: hidden;
+            background: #0a0a0a;
+            color: #fff;
+            font-family: system-ui, -apple-system, sans-serif;
+        }
+
+        /* ============================================
+           SCROLL SNAP CONTAINER (Full-Page Scroll)
+           ============================================ */
+        .gallery-snap {
+            height: 100vh;
+            overflow-y: scroll;
+            scroll-snap-type: y mandatory;
+            scroll-behavior: smooth;
+            scrollbar-width: none;
+        }
+        .gallery-snap::-webkit-scrollbar { display: none; }
+
+        .snap-page {
+            height: 100vh;
+            width: 100%;
+            scroll-snap-align: start;
+            scroll-snap-stop: always;
+            overflow: hidden;
+        }
+
+        /* ============================================
+           X CLOSE BUTTON (Top-Right)
+           ============================================ */
+        .nav-back {
+            position: fixed;
+            top: 12px;
+            right: 12px;
+            z-index: 1000;
+            width: 40px;
+            height: 40px;
+            background: transparent;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            text-decoration: none;
+            opacity: 0.5;
+            transition: opacity 0.2s;
+        }
+        .nav-back:hover { opacity: 1; }
+        .nav-back svg { fill: #fff; width: 28px; height: 28px; }
+
+        /* ============================================
+           PAGE 1: VIEWER SECTION
+           ============================================ */
+        .viewer-page {
+            display: flex;
+            flex-direction: column;
+            padding: 60px 20px 20px;
+        }
+
+        /* Headline */
+        .viewer-headline {
+            text-align: center;
+            font-size: clamp(1.4rem, 4vw, 2.2rem);
+            font-weight: 600;
+            margin-bottom: 16px;
+            letter-spacing: 0.5px;
+        }
+
+        /* Main Content Area */
+        .viewer-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            min-height: 0;
+        }
+
+        /* --- MAIN IMAGE STAGE --- */
+        .image-stage {
+            flex: 1;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 0;
+        }
+        .image-stage img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+            border-radius: 6px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+            transition: opacity 0.25s ease;
+        }
+
+        /* Prev/Next Arrows */
+        .arrow-btn {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 48px;
+            height: 48px;
+            background: rgba(0,0,0,0.4);
+            border: none;
+            border-radius: 50%;
+            color: #fff;
+            font-size: 1.6rem;
+            cursor: pointer;
+            opacity: 0.5;
+            transition: opacity 0.2s, background 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .arrow-btn:hover { opacity: 1; background: rgba(0,0,0,0.7); }
+        .arrow-prev { left: 8px; }
+        .arrow-next { right: 8px; }
+
+        /* --- THUMBNAIL STRIP (Portrait: Horizontal) --- */
+        .thumb-strip {
+            display: flex;
+            gap: 10px;
+            overflow-x: auto;
+            scroll-snap-type: x mandatory;
+            padding: 8px 4px;
+            scrollbar-width: none;
+        }
+        .thumb-strip::-webkit-scrollbar { display: none; }
+
+        .thumb-item {
+            flex: 0 0 auto;
+            width: 80px;
+            aspect-ratio: 4/3;
+            scroll-snap-align: center;
+            cursor: pointer;
+            opacity: 0.5;
+            border: 2px solid transparent;
+            border-radius: 6px;
+            overflow: hidden;
+            transition: opacity 0.2s, border-color 0.2s, transform 0.2s;
+        }
+        .thumb-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .thumb-item:hover { opacity: 0.8; transform: scale(1.05); }
+        .thumb-item.active { opacity: 1; border-color: #fff; }
+
+        /* --- TEXT BLOCK --- */
+        .viewer-text {
+            padding: 12px 8px;
+            color: #ccc;
+            line-height: 1.5;
+            font-size: 0.95rem;
+            max-height: 120px;
+            overflow-y: auto;
+        }
+
+        /* --- SIDEBAR (for Landscape: Thumbs + Text) --- */
+        .viewer-sidebar {
+            display: none;
+            flex-direction: column;
+            gap: 12px;
+            width: 180px;
+            flex-shrink: 0;
+        }
+        .viewer-sidebar .thumb-strip {
+            flex-direction: column;
+            overflow-y: auto;
+            overflow-x: hidden;
+            max-height: 50vh;
+        }
+        .viewer-sidebar .thumb-item {
+            width: 100%;
+        }
+
+        /* ============================================
+           PAGE 2: GRID SECTION
+           ============================================ */
+        .grid-page {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            padding: 0;
+        }
+
+        /* Side Arrows (Fixed on edges) */
+        .grid-side-arrow {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 100;
+            background: transparent;
+            border: none;
+            color: #fff;
+            font-size: 3rem;
+            cursor: pointer;
+            opacity: 0.3;
+            transition: opacity 0.2s;
+            padding: 20px 8px;
+            height: 120px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .grid-side-arrow:hover { opacity: 0.8; }
+        .grid-side-arrow:disabled { opacity: 0.1; cursor: default; }
+        .grid-side-arrow.left { left: 0; }
+        .grid-side-arrow.right { right: 0; }
+
+        /* Grid Container (Horizontal Snap) */
+        .grid-carousel {
+            flex: 1;
+            height: 100%;
+            display: flex;
+            overflow-x: scroll;
+            scroll-snap-type: x mandatory;
+            scroll-behavior: smooth;
+            scrollbar-width: none;
+        }
+        .grid-carousel::-webkit-scrollbar { display: none; }
+
+        /* Single Grid Page - Auto-fit magic */
+        .grid-panel {
+            flex: 0 0 100%;
+            scroll-snap-align: start;
+            height: 100%;
+            display: grid;
+            /* Auto-fit: fills available space, min 150px per item */
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            grid-auto-rows: 1fr;
+            gap: 8px;
+            padding: 12px 50px; /* Side padding for arrows */
+            align-content: center;
+        }
+
+        .grid-item {
+            aspect-ratio: 4/3;
+            border-radius: 8px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .grid-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .grid-item:hover {
+            transform: scale(1.04);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.6);
+            z-index: 10;
+            position: relative;
+        }
+
+        /* ============================================
+           LANDSCAPE LAYOUT
+           ============================================ */
+        @media (min-aspect-ratio: 1/1) {
+            .viewer-content {
+                flex-direction: row;
+            }
+
+            .viewer-sidebar {
+                display: flex;
+            }
+
+            .thumb-strip-inline {
+                display: none;
+            }
+
+            /* Grid: Larger minimum for wider screens */
+            .grid-panel {
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+                padding: 16px 60px;
+            }
+        }
+
+        @media (max-aspect-ratio: 1/1) {
+            .viewer-sidebar { display: none; }
+        }
+
+        @media (min-width: 1400px) {
+            .grid-panel {
+                grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            }
+        }
+
+        /* Scroll Hint */
+        .scroll-hint {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: #444;
+            font-size: 0.8rem;
+            text-align: center;
+            animation: bounce 2s infinite;
+        }
+        .scroll-hint svg {
+            display: block;
+            margin: 4px auto 0;
+            fill: #444;
+        }
+        @keyframes bounce {
+            0%, 100% { transform: translateX(-50%) translateY(0); }
+            50% { transform: translateX(-50%) translateY(6px); }
+        }
+    </style>
+</head>
+<body>
+
+    {{/* --- CLOSE BUTTON (Top-Right) --- */}}
+    {{ if .Params.back_link }}
+    <a href="{{ .Params.back_link }}" class="nav-back" aria-label="Close">
+        <svg viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+    </a>
+    {{ end }}
+
+    {{/* --- BUILD IMAGE ARRAYS --- */}}
+    {{ $gallery := .Resources.Match "gallery/*" }}
+    {{ $imagesPerPage := 12 }}
+
+    <div class="gallery-snap" id="gallery-snap">
+
+        <!-- ==========================================
+             PAGE 1: VIEWER
+             ========================================== -->
+        <section class="snap-page viewer-page" id="page-viewer">
+
+            <h1 class="viewer-headline">{{ .Title }}</h1>
+
+            <div class="viewer-content">
+
+                <!-- Main Image -->
+                <div class="image-stage">
+                    {{ if $first }}
+                        {{ $large := $first.Resize "1200x webp" }}
+                        <img id="main-image" src="{{ $large.RelPermalink }}" alt="{{ .Title }}" loading="eager">
+                    {{ end }}
+                    <button class="arrow-btn arrow-prev" id="prev-main" aria-label="Previous">&#8249;</button>
+                    <button class="arrow-btn arrow-next" id="next-main" aria-label="Next">&#8250;</button>
+                </div>
+
+                <!-- Sidebar (Landscape: Thumbs + Text) -->
+                <aside class="viewer-sidebar">
+                    <div class="thumb-strip">
+                        {{ range $i, $img := $gallery }}
+                            {{ $thumb := $img.Resize "200x webp q80" }}
+                            {{ $large := $img.Resize "1200x webp" }}
+                            <div class="thumb-item{{ if eq $i 0 }} active{{ end }}"
+                                 data-index="{{ $i }}"
+                                 data-src="{{ $large.RelPermalink }}">
+                                <img src="{{ $thumb.RelPermalink }}" alt="Thumbnail" loading="lazy">
+                            </div>
+                        {{ end }}
+                    </div>
+                    <div class="viewer-text">
+                        {{ .Content }}
+                    </div>
+                </aside>
+
+            </div>
+
+            <!-- Thumbnail Strip (Portrait: Inline Horizontal) -->
+            <div class="thumb-strip thumb-strip-inline">
+                {{ range $i, $img := $gallery }}
+                    {{ $thumb := $img.Resize "200x webp q80" }}
+                    {{ $large := $img.Resize "1200x webp" }}
+                    <div class="thumb-item{{ if eq $i 0 }} active{{ end }}"
+                         data-index="{{ $i }}"
+                         data-src="{{ $large.RelPermalink }}">
+                        <img src="{{ $thumb.RelPermalink }}" alt="Thumbnail" loading="lazy">
+                    </div>
+                {{ end }}
+            </div>
+
+            <!-- Text (Portrait: Below) -->
+            <div class="viewer-text" style="display: block;">
+                {{ .Content }}
+            </div>
+
+            <div class="scroll-hint">
+                Scroll for more
+                <svg width="20" height="20" viewBox="0 0 24 24"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6z"/></svg>
+            </div>
+
+        </section>
+
+        <!-- ==========================================
+             PAGE 2: GRID
+             ========================================== -->
+        <section class="snap-page grid-page" id="page-grid">
+
+            <!-- Side Arrows -->
+            <button class="grid-side-arrow left" id="grid-prev" aria-label="Previous page">&#8249;</button>
+            <button class="grid-side-arrow right" id="grid-next" aria-label="Next page">&#8250;</button>
+
+            <div class="grid-carousel" id="grid-carousel">
+                {{/* Split images into pages */}}
+                {{ $total := len $gallery }}
+                {{ $pages := int (math.Ceil (div (float $total) (float $imagesPerPage))) }}
+
+                {{ range $pageNum := seq $pages }}
+                    {{ $start := mul (sub $pageNum 1) $imagesPerPage }}
+                    {{ $end := add $start $imagesPerPage }}
+                    {{ if gt $end $total }}{{ $end = $total }}{{ end }}
+
+                    <div class="grid-panel" data-page="{{ $pageNum }}">
+                        {{ range $i := seq $start (sub $end 1) }}
+                            {{ $img := index $gallery $i }}
+                            {{ $thumb := $img.Resize "400x webp q85" }}
+                            {{ $large := $img.Resize "1200x webp" }}
+                            <div class="grid-item"
+                                 data-index="{{ $i }}"
+                                 data-src="{{ $large.RelPermalink }}">
+                                <img src="{{ $thumb.RelPermalink }}" alt="Gallery" loading="lazy">
+                            </div>
+                        {{ end }}
+                    </div>
+                {{ end }}
+            </div>
+
+        </section>
+
+    </div>
+
+    <script>
+    (function() {
+        // --- DATA ---
+        const images = [
+            {{ range $gallery }}
+            "{{ (.Resize "1200x webp").RelPermalink }}",
+            {{ end }}
+        ];
+        const totalImages = images.length;
+        let currentIndex = 0;
+
+        // --- DOM ---
+        const mainImg = document.getElementById('main-image');
+        const snapContainer = document.getElementById('gallery-snap');
+        const thumbsInline = document.querySelectorAll('.thumb-strip-inline .thumb-item');
+        const thumbsSidebar = document.querySelectorAll('.viewer-sidebar .thumb-item');
+        const allThumbs = document.querySelectorAll('.thumb-item');
+        const gridItems = document.querySelectorAll('.grid-item');
+        const gridCarousel = document.getElementById('grid-carousel');
+        const gridPanels = document.querySelectorAll('.grid-panel');
+        const gridPrev = document.getElementById('grid-prev');
+        const gridNext = document.getElementById('grid-next');
+
+        let currentGridPage = 0;
+        const totalGridPages = gridPanels.length;
+
+        // --- FUNCTIONS ---
+
+        function updateMainImage(index) {
+            if (index < 0 || index >= totalImages) return;
+            currentIndex = index;
+
+            // Fade transition
+            mainImg.style.opacity = '0';
+            setTimeout(() => {
+                mainImg.src = images[index];
+                mainImg.style.opacity = '1';
+            }, 150);
+
+            // Update active state on all thumbs
+            allThumbs.forEach(t => {
+                t.classList.toggle('active', parseInt(t.dataset.index) === index);
+            });
+        }
+
+        function scrollToViewer() {
+            snapContainer.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function updateGridNav() {
+            gridPrev.disabled = currentGridPage === 0;
+            gridNext.disabled = currentGridPage >= totalGridPages - 1;
+        }
+
+        function scrollGridTo(pageIndex) {
+            if (pageIndex < 0 || pageIndex >= totalGridPages) return;
+            currentGridPage = pageIndex;
+            gridPanels[pageIndex].scrollIntoView({ behavior: 'smooth', inline: 'start', block: 'nearest' });
+            updateGridNav();
+        }
+
+        // --- INIT ---
+        updateGridNav();
+
+        // --- EVENT LISTENERS ---
+
+        // Main Prev/Next
+        document.getElementById('prev-main').addEventListener('click', () => {
+            updateMainImage((currentIndex - 1 + totalImages) % totalImages);
+        });
+        document.getElementById('next-main').addEventListener('click', () => {
+            updateMainImage((currentIndex + 1) % totalImages);
+        });
+
+        // Thumbnail Clicks
+        allThumbs.forEach(thumb => {
+            thumb.addEventListener('click', () => {
+                const idx = parseInt(thumb.dataset.index);
+                updateMainImage(idx);
+            });
+        });
+
+        // Grid Item Clicks
+        gridItems.forEach(item => {
+            item.addEventListener('click', () => {
+                const idx = parseInt(item.dataset.index);
+                updateMainImage(idx);
+                scrollToViewer();
+            });
+        });
+
+        // Grid Pagination
+        gridPrev.addEventListener('click', () => scrollGridTo(currentGridPage - 1));
+        gridNext.addEventListener('click', () => scrollGridTo(currentGridPage + 1));
+
+        // Detect grid scroll (for manual swipe)
+        gridCarousel.addEventListener('scroll', () => {
+            const scrollLeft = gridCarousel.scrollLeft;
+            const panelWidth = gridCarousel.offsetWidth;
+            const newPage = Math.round(scrollLeft / panelWidth);
+            if (newPage !== currentGridPage) {
+                currentGridPage = newPage;
+                updateGridNav();
+            }
+        });
+
+        // Keyboard Navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft') {
+                updateMainImage((currentIndex - 1 + totalImages) % totalImages);
+            } else if (e.key === 'ArrowRight') {
+                updateMainImage((currentIndex + 1) % totalImages);
+            }
+        });
+
+    })();
+    </script>
+
+</body>
+</html>
+
+</file>
+
+<file path="./layouts/products/dump/galleryd.html">
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{{ .Title }}</title>
+
+    {{/* --- LCP: Preload First Gallery Image --- */}}
+    {{ $gallery := .Resources.Match "gallery/*" }}
+    {{ $first := index $gallery 0 }}
+    {{ if $first }}
+        {{ $preload := $first.Resize "1200x webp" }}
+        <link rel="preload" as="image" href="{{ $preload.RelPermalink }}">
+    {{ end }}
+
+    <style>
+        /* ============================================
+           RESET & BASE
+           ============================================ */
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+        html, body {
+            height: 100%;
+            overflow: hidden;
+            background: #0a0a0a;
+            color: #fff;
+            font-family: system-ui, -apple-system, sans-serif;
+        }
+
+        /* ============================================
+           SCROLL SNAP CONTAINER (Full-Page Scroll)
+           ============================================ */
+        .gallery-snap {
+            height: 100vh;
+            overflow-y: scroll;
+            scroll-snap-type: y mandatory;
+            scroll-behavior: smooth;
+            scrollbar-width: none;
+        }
+        .gallery-snap::-webkit-scrollbar { display: none; }
+
+        .snap-page {
+            height: 100vh;
+            width: 100%;
+            scroll-snap-align: start;
+            scroll-snap-stop: always;
+            overflow: hidden;
+        }
+
+        /* ============================================
+           NAV BUTTON (Top-Left Cycle Button)
+           ============================================ */
+        .nav-cycle {
+            position: fixed;
+            top: 16px;
+            left: 16px;
+            z-index: 1000;
+            width: 44px;
+            height: 44px;
+            background: rgba(0,0,0,0.6);
+            border: 2px solid rgba(255,255,255,0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background 0.2s, border-color 0.2s, transform 0.2s;
+            text-decoration: none;
+        }
+        .nav-cycle:hover {
+            background: rgba(255,255,255,0.15);
+            border-color: #fff;
+            transform: scale(1.08);
+        }
+        .nav-cycle svg { fill: #fff; width: 22px; height: 22px; }
+
+        /* Back Button (Top-Right) */
+        .nav-back {
+            position: fixed;
+            top: 16px;
+            right: 16px;
+            z-index: 1000;
+            width: 44px;
+            height: 44px;
+            background: rgba(0,0,0,0.6);
+            border: 2px solid rgba(255,255,255,0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background 0.2s, border-color 0.2s, transform 0.2s;
+            text-decoration: none;
+        }
+        .nav-back:hover {
+            background: rgba(255,255,255,0.15);
+            border-color: #fff;
+            transform: scale(1.08);
+        }
+        .nav-back svg { fill: #fff; width: 20px; height: 20px; }
+
+        /* ============================================
+           PAGE 1: VIEWER SECTION
+           ============================================ */
+        .viewer-page {
+            display: flex;
+            flex-direction: column;
+            padding: 60px 20px 20px;
+        }
+
+        /* Headline */
+        .viewer-headline {
+            text-align: center;
+            font-size: clamp(1.4rem, 4vw, 2.2rem);
+            font-weight: 600;
+            margin-bottom: 16px;
+            letter-spacing: 0.5px;
+        }
+
+        /* Main Content Area */
+        .viewer-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            min-height: 0;
+        }
+
+        /* --- MAIN IMAGE STAGE --- */
+        .image-stage {
+            flex: 1;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 0;
+        }
+        .image-stage img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+            border-radius: 6px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+            transition: opacity 0.25s ease;
+        }
+
+        /* Prev/Next Arrows */
+        .arrow-btn {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 48px;
+            height: 48px;
+            background: rgba(0,0,0,0.4);
+            border: none;
+            border-radius: 50%;
+            color: #fff;
+            font-size: 1.6rem;
+            cursor: pointer;
+            opacity: 0.5;
+            transition: opacity 0.2s, background 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .arrow-btn:hover { opacity: 1; background: rgba(0,0,0,0.7); }
+        .arrow-prev { left: 8px; }
+        .arrow-next { right: 8px; }
+
+        /* --- THUMBNAIL STRIP (Portrait: Horizontal) --- */
+        .thumb-strip {
+            display: flex;
+            gap: 10px;
+            overflow-x: auto;
+            scroll-snap-type: x mandatory;
+            padding: 8px 4px;
+            scrollbar-width: none;
+        }
+        .thumb-strip::-webkit-scrollbar { display: none; }
+
+        .thumb-item {
+            flex: 0 0 auto;
+            width: 80px;
+            aspect-ratio: 4/3;
+            scroll-snap-align: center;
+            cursor: pointer;
+            opacity: 0.5;
+            border: 2px solid transparent;
+            border-radius: 6px;
+            overflow: hidden;
+            transition: opacity 0.2s, border-color 0.2s, transform 0.2s;
+        }
+        .thumb-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .thumb-item:hover { opacity: 0.8; transform: scale(1.05); }
+        .thumb-item.active { opacity: 1; border-color: #fff; }
+
+        /* --- TEXT BLOCK --- */
+        .viewer-text {
+            padding: 12px 8px;
+            color: #ccc;
+            line-height: 1.5;
+            font-size: 0.95rem;
+            max-height: 120px;
+            overflow-y: auto;
+        }
+
+        /* --- SIDEBAR (for Landscape: Thumbs + Text) --- */
+        .viewer-sidebar {
+            display: none;
+            flex-direction: column;
+            gap: 12px;
+            width: 180px;
+            flex-shrink: 0;
+        }
+        .viewer-sidebar .thumb-strip {
+            flex-direction: column;
+            overflow-y: auto;
+            overflow-x: hidden;
+            max-height: 50vh;
+        }
+        .viewer-sidebar .thumb-item {
+            width: 100%;
+        }
+
+        /* ============================================
+           PAGE 2: GRID SECTION
+           ============================================ */
+        .grid-page {
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            position: relative;
+        }
+
+        .grid-title {
+            text-align: center;
+            font-size: 1.2rem;
+            font-weight: 500;
+            margin-bottom: 16px;
+            color: #888;
+        }
+
+        /* Horizontal Carousel of Grid Pages */
+        .grid-carousel {
+            flex: 1;
+            display: flex;
+            overflow-x: scroll;
+            scroll-snap-type: x mandatory;
+            scroll-behavior: smooth;
+            scrollbar-width: none;
+            gap: 20px;
+        }
+        .grid-carousel::-webkit-scrollbar { display: none; }
+
+        /* Single Grid Page */
+        .grid-panel {
+            flex: 0 0 100%;
+            scroll-snap-align: start;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            grid-auto-rows: 1fr;
+            gap: 12px;
+            padding: 4px;
+            align-content: start;
+        }
+
+        .grid-item {
+            aspect-ratio: 4/3;
+            border-radius: 8px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: transform 0.25s ease, box-shadow 0.25s ease;
+        }
+        .grid-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .grid-item:hover {
+            transform: scale(1.06);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+            z-index: 10;
+            position: relative;
+        }
+
+        /* Grid Nav Arrows */
+        .grid-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+        }
+        .grid-arrow {
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 8px;
+            color: #fff;
+            padding: 10px 20px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            opacity: 0.6;
+            transition: opacity 0.2s, background 0.2s;
+        }
+        .grid-arrow:hover { opacity: 1; background: rgba(255,255,255,0.2); }
+        .grid-arrow:disabled { opacity: 0.2; cursor: not-allowed; }
+
+        .grid-indicator {
+            color: #555;
+            font-size: 0.85rem;
+        }
+
+        /* ============================================
+           LANDSCAPE LAYOUT (min-aspect-ratio: 1/1)
+           ============================================ */
+        @media (min-aspect-ratio: 1/1) {
+            .viewer-page {
+                padding: 70px 30px 20px;
+            }
+
+            .viewer-content {
+                flex-direction: row;
+            }
+
+            .image-stage {
+                flex: 1;
+            }
+
+            /* Show Sidebar, Hide Inline Strip */
+            .viewer-sidebar {
+                display: flex;
+            }
+            .thumb-strip-inline {
+                display: none;
+            }
+
+            /* Grid: More Columns */
+            .grid-panel {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        @media (min-width: 1200px) {
+            .grid-panel {
+                grid-template-columns: repeat(4, 1fr);
+            }
+            .viewer-sidebar {
+                width: 220px;
+            }
+        }
+
+        /* ============================================
+           SCROLL HINT (Visual cue to scroll down)
+           ============================================ */
+        .scroll-hint {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: #444;
+            font-size: 0.8rem;
+            text-align: center;
+            animation: bounce 2s infinite;
+        }
+        .scroll-hint svg {
+            display: block;
+            margin: 4px auto 0;
+            fill: #444;
+        }
+        @keyframes bounce {
+            0%, 100% { transform: translateX(-50%) translateY(0); }
+            50% { transform: translateX(-50%) translateY(6px); }
+        }
+    </style>
+</head>
+<body>
+
+    {{/* --- NAV BUTTONS --- */}}
+    {{ if .Params.next_page_url }}
+    <a href="{{ .Params.next_page_url }}" class="nav-cycle" aria-label="Next Gallery">
+        <svg viewBox="0 0 24 24"><path d="M6.99 11L3 15l3.99 4v-3H14v-2H6.99v-3zM21 9l-3.99-4v3H10v2h7.01v3L21 9z"/></svg>
+    </a>
+    {{ end }}
+
+    {{ if .Params.back_link }}
+    <a href="{{ .Params.back_link }}" class="nav-back" aria-label="Back">
+        <svg viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+    </a>
+    {{ end }}
+
+    {{/* --- BUILD IMAGE ARRAYS --- */}}
+    {{ $gallery := .Resources.Match "gallery/*" }}
+    {{ $imagesPerPage := 8 }}
+
+    <div class="gallery-snap" id="gallery-snap">
+
+        <!-- ==========================================
+             PAGE 1: VIEWER
+             ========================================== -->
+        <section class="snap-page viewer-page" id="page-viewer">
+
+            <h1 class="viewer-headline">{{ .Title }}</h1>
+
+            <div class="viewer-content">
+
+                <!-- Main Image -->
+                <div class="image-stage">
+                    {{ if $first }}
+                        {{ $large := $first.Resize "1200x webp" }}
+                        <img id="main-image" src="{{ $large.RelPermalink }}" alt="{{ .Title }}" loading="eager">
+                    {{ end }}
+                    <button class="arrow-btn arrow-prev" id="prev-main" aria-label="Previous">&#8249;</button>
+                    <button class="arrow-btn arrow-next" id="next-main" aria-label="Next">&#8250;</button>
+                </div>
+
+                <!-- Sidebar (Landscape: Thumbs + Text) -->
+                <aside class="viewer-sidebar">
+                    <div class="thumb-strip">
+                        {{ range $i, $img := $gallery }}
+                            {{ $thumb := $img.Resize "200x webp q80" }}
+                            {{ $large := $img.Resize "1200x webp" }}
+                            <div class="thumb-item{{ if eq $i 0 }} active{{ end }}"
+                                 data-index="{{ $i }}"
+                                 data-src="{{ $large.RelPermalink }}">
+                                <img src="{{ $thumb.RelPermalink }}" alt="Thumbnail" loading="lazy">
+                            </div>
+                        {{ end }}
+                    </div>
+                    <div class="viewer-text">
+                        {{ .Content }}
+                    </div>
+                </aside>
+
+            </div>
+
+            <!-- Thumbnail Strip (Portrait: Inline Horizontal) -->
+            <div class="thumb-strip thumb-strip-inline">
+                {{ range $i, $img := $gallery }}
+                    {{ $thumb := $img.Resize "200x webp q80" }}
+                    {{ $large := $img.Resize "1200x webp" }}
+                    <div class="thumb-item{{ if eq $i 0 }} active{{ end }}"
+                         data-index="{{ $i }}"
+                         data-src="{{ $large.RelPermalink }}">
+                        <img src="{{ $thumb.RelPermalink }}" alt="Thumbnail" loading="lazy">
+                    </div>
+                {{ end }}
+            </div>
+
+            <!-- Text (Portrait: Below) -->
+            <div class="viewer-text" style="display: block;">
+                {{ .Content }}
+            </div>
+
+            <div class="scroll-hint">
+                Scroll for more
+                <svg width="20" height="20" viewBox="0 0 24 24"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6z"/></svg>
+            </div>
+
+        </section>
+
+        <!-- ==========================================
+             PAGE 2: GRID
+             ========================================== -->
+        <section class="snap-page grid-page" id="page-grid">
+
+            <h2 class="grid-title">All Photos</h2>
+
+            <div class="grid-carousel" id="grid-carousel">
+                {{/* Split images into pages */}}
+                {{ $total := len $gallery }}
+                {{ $pages := int (math.Ceil (div (float $total) (float $imagesPerPage))) }}
+
+                {{ range $pageNum := seq $pages }}
+                    {{ $start := mul (sub $pageNum 1) $imagesPerPage }}
+                    {{ $end := add $start $imagesPerPage }}
+                    {{ if gt $end $total }}{{ $end = $total }}{{ end }}
+
+                    <div class="grid-panel" data-page="{{ $pageNum }}">
+                        {{ range $i := seq $start (sub $end 1) }}
+                            {{ $img := index $gallery $i }}
+                            {{ $thumb := $img.Resize "400x webp q85" }}
+                            {{ $large := $img.Resize "1200x webp" }}
+                            <div class="grid-item"
+                                 data-index="{{ $i }}"
+                                 data-src="{{ $large.RelPermalink }}">
+                                <img src="{{ $thumb.RelPermalink }}" alt="Gallery" loading="lazy">
+                            </div>
+                        {{ end }}
+                    </div>
+                {{ end }}
+            </div>
+
+            <nav class="grid-nav">
+                <button class="grid-arrow" id="grid-prev" disabled>← Previous</button>
+                <span class="grid-indicator" id="grid-indicator">1 / {{ $pages }}</span>
+                <button class="grid-arrow" id="grid-next" {{ if le $pages 1 }}disabled{{ end }}>Next →</button>
+            </nav>
+
+        </section>
+
+    </div>
+
+    <script>
+    (function() {
+        // --- DATA ---
+        const images = [
+            {{ range $gallery }}
+            "{{ (.Resize "1200x webp").RelPermalink }}",
+            {{ end }}
+        ];
+        const totalImages = images.length;
+        let currentIndex = 0;
+
+        // --- DOM ---
+        const mainImg = document.getElementById('main-image');
+        const snapContainer = document.getElementById('gallery-snap');
+        const thumbsInline = document.querySelectorAll('.thumb-strip-inline .thumb-item');
+        const thumbsSidebar = document.querySelectorAll('.viewer-sidebar .thumb-item');
+        const allThumbs = document.querySelectorAll('.thumb-item');
+        const gridItems = document.querySelectorAll('.grid-item');
+        const gridCarousel = document.getElementById('grid-carousel');
+        const gridPanels = document.querySelectorAll('.grid-panel');
+        const gridPrev = document.getElementById('grid-prev');
+        const gridNext = document.getElementById('grid-next');
+        const gridIndicator = document.getElementById('grid-indicator');
+
+        let currentGridPage = 0;
+        const totalGridPages = gridPanels.length;
+
+        // --- FUNCTIONS ---
+
+        function updateMainImage(index) {
+            if (index < 0 || index >= totalImages) return;
+            currentIndex = index;
+
+            // Fade transition
+            mainImg.style.opacity = '0';
+            setTimeout(() => {
+                mainImg.src = images[index];
+                mainImg.style.opacity = '1';
+            }, 150);
+
+            // Update active state on all thumbs
+            allThumbs.forEach(t => {
+                t.classList.toggle('active', parseInt(t.dataset.index) === index);
+            });
+        }
+
+        function scrollToViewer() {
+            snapContainer.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function updateGridNav() {
+            gridPrev.disabled = currentGridPage === 0;
+            gridNext.disabled = currentGridPage >= totalGridPages - 1;
+            gridIndicator.textContent = `${currentGridPage + 1} / ${totalGridPages}`;
+        }
+
+        function scrollGridTo(pageIndex) {
+            if (pageIndex < 0 || pageIndex >= totalGridPages) return;
+            currentGridPage = pageIndex;
+            gridPanels[pageIndex].scrollIntoView({ behavior: 'smooth', inline: 'start', block: 'nearest' });
+            updateGridNav();
+        }
+
+        // --- EVENT LISTENERS ---
+
+        // Main Prev/Next
+        document.getElementById('prev-main').addEventListener('click', () => {
+            updateMainImage((currentIndex - 1 + totalImages) % totalImages);
+        });
+        document.getElementById('next-main').addEventListener('click', () => {
+            updateMainImage((currentIndex + 1) % totalImages);
+        });
+
+        // Thumbnail Clicks
+        allThumbs.forEach(thumb => {
+            thumb.addEventListener('click', () => {
+                const idx = parseInt(thumb.dataset.index);
+                updateMainImage(idx);
+            });
+        });
+
+        // Grid Item Clicks
+        gridItems.forEach(item => {
+            item.addEventListener('click', () => {
+                const idx = parseInt(item.dataset.index);
+                updateMainImage(idx);
+                scrollToViewer();
+            });
+        });
+
+        // Grid Pagination
+        gridPrev.addEventListener('click', () => scrollGridTo(currentGridPage - 1));
+        gridNext.addEventListener('click', () => scrollGridTo(currentGridPage + 1));
+
+        // Detect grid scroll (for manual swipe)
+        gridCarousel.addEventListener('scroll', () => {
+            const scrollLeft = gridCarousel.scrollLeft;
+            const panelWidth = gridCarousel.offsetWidth;
+            const newPage = Math.round(scrollLeft / panelWidth);
+            if (newPage !== currentGridPage) {
+                currentGridPage = newPage;
+                updateGridNav();
+            }
+        });
+
+        // Keyboard Navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft') {
+                updateMainImage((currentIndex - 1 + totalImages) % totalImages);
+            } else if (e.key === 'ArrowRight') {
+                updateMainImage((currentIndex + 1) % totalImages);
+            }
+        });
+
+        // Hide portrait text in landscape (CSS handles show/hide, but duplicate content issue)
+        // The sidebar text shows in landscape, inline text shows in portrait.
+        // We use CSS media queries for this.
+
+    })();
+    </script>
+
+</body>
+</html>
+
+</file>
+
+<file path="./layouts/posts/list.html">
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>{{ .Title }} | {{ .Site.Title }}</title>
+
+        <style>
+            /* --- RESET & VARIABLES --- */
+            * {
+                box-sizing: border-box;
+                margin: 0;
+                padding: 0;
+            }
+
+            :root {
+                --font-serif: "Georgia", "Times New Roman", serif;
+                --font-sans: "Helvetica Neue", Helvetica, Arial, sans-serif;
+                --color-text: #222;
+                --color-muted: #666;
+                --bg-color: #fafafa;
+                --card-bg: #ffffff;
+            }
+
+            body {
+                background-color: var(--bg-color);
+                color: var(--color-text);
+                font-family: var(--font-sans);
+                line-height: 1.6;
+            }
+
+            a {
+                text-decoration: none;
+                color: inherit;
+            }
+            ul {
+                list-style: none;
+            }
+
+            /* --- LAYOUT --- */
+            .container {
+                max-width: 900px;
+                margin: 0 auto;
+                padding: 40px 20px;
+                min-height: 100vh;
+                display: flex;
+                flex-direction: column;
+            }
+
+            /* --- HEADER & FILTER --- */
+            .list-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 50px;
+                border-bottom: 2px solid #eee;
+                padding-bottom: 20px;
+            }
+
+            .page-title {
+                font-family: var(--font-serif);
+                font-size: 2rem;
+                font-weight: 700;
+            }
+
+            /* Dropdown Styling */
+            .filter-wrapper {
+                position: relative;
+            }
+
+            .filter-btn {
+                background: #000;
+                color: #fff;
+                padding: 8px 16px;
+                border: none;
+                border-radius: 4px;
+                cursor: pointer;
+                font-family: var(--font-sans);
+                font-weight: 600;
+                font-size: 0.9rem;
+                display: flex;
+                align-items: center;
+                gap: 6px;
+            }
+
+            .filter-dropdown {
+                display: none; /* Hidden by default */
+                position: absolute;
+                top: 100%;
+                right: 0;
+                margin-top: 5px;
+                background: white;
+                min-width: 160px;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+                border-radius: 4px;
+                z-index: 100;
+                padding: 8px 0;
+            }
+
+            .filter-wrapper:hover .filter-dropdown {
+                display: block;
+            } /* CSS Hover logic */
+
+            .filter-dropdown a {
+                display: block;
+                padding: 8px 16px;
+                font-size: 0.9rem;
+                color: var(--color-text);
+                transition: background 0.2s;
+            }
+            .filter-dropdown a:hover {
+                background: #f0f0f0;
+            }
+
+            /* --- ARTICLE CARD (The Core) --- */
+            .article-card {
+                display: grid;
+                grid-template-columns: 280px 1fr; /* Image | Content */
+                gap: 30px;
+                background: var(--card-bg);
+                margin-bottom: 30px;
+                border-radius: 8px;
+                overflow: hidden; /* For image zoom containment */
+                border: 1px solid #e5e5e5;
+                position: relative;
+                transition:
+                    background-color 0.3s ease,
+                    box-shadow 0.3s ease;
+            }
+
+            .article-card:hover {
+                background-color: #f8f9fa; /* Slight dim on hover */
+                box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+            }
+
+            /* Click Overlay */
+            .card-link-overlay {
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                z-index: 10;
+            }
+
+            /* Image Side */
+            .card-image {
+                height: 100%;
+                min-height: 220px;
+                overflow: hidden;
+                background: #eee;
+            }
+
+            .card-image img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+                transition: transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            }
+
+            .article-card:hover .card-image img {
+                transform: scale(1.08); /* The Zoom Effect */
+            }
+
+            /* Text Side */
+            .card-content {
+                padding: 25px 25px 25px 0; /* No left padding because gap handles it */
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+            }
+
+            .card-date {
+                font-size: 0.85rem;
+                color: var(--color-muted);
+                margin-bottom: 8px;
+                font-weight: 500;
+            }
+
+            .card-title {
+                font-family: var(--font-serif);
+                font-size: 1.6rem;
+                margin-bottom: 12px;
+                color: var(--color-text);
+                line-height: 1.3;
+            }
+
+            .card-excerpt {
+                font-family: var(--font-sans);
+                font-size: 1rem;
+                color: #444;
+                line-height: 1.6;
+                margin-bottom: 15px;
+            }
+
+            .read-more {
+                font-size: 0.9rem;
+                font-weight: 700;
+                color: #000;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+                margin-top: auto;
+                opacity: 0.7;
+                transition: opacity 0.2s;
+            }
+            .article-card:hover .read-more {
+                opacity: 1;
+            }
+
+            /* --- PAGINATION (Arrows) --- */
+            .pagination-wrapper {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-top: auto; /* Pushes to bottom if content is short */
+                padding-top: 40px;
+                border-top: 1px solid #eee;
+            }
+
+            .arrow-btn {
+                font-size: 2rem;
+                line-height: 1;
+                padding: 0 10px;
+                color: #333;
+                transition:
+                    transform 0.2s,
+                    color 0.2s;
+                cursor: pointer;
+            }
+
+            .arrow-btn:hover {
+                color: #000;
+                transform: scale(1.2);
+            }
+            .arrow-btn.disabled {
+                opacity: 0.2;
+                pointer-events: none;
+            }
+
+            /* --- MOBILE --- */
+            @media (max-width: 768px) {
+                .article-card {
+                    grid-template-columns: 1fr; /* Stack Image on top */
+                    grid-template-rows: 200px auto;
+                }
+                .card-content {
+                    padding: 20px;
+                }
+                .list-header {
+                    flex-direction: column;
+                    align-items: flex-start;
+                    gap: 15px;
+                }
+                .filter-wrapper {
+                    align-self: flex-start;
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <header class="list-header">
+                <h1 class="page-title">{{ .Title }}</h1>
+
+                <div class="filter-wrapper">
+                    <button class="filter-btn">Filter Posts ▾</button>
+                    <div class="filter-dropdown">
+                        {{ range .Site.Taxonomies.categories }}
+                        <a href="{{ .Page.Permalink }}">{{ .Page.Title }}</a>
+                        {{ end }}
+                    </div>
+                </div>
+            </header>
+
+            <div class="article-list">
+                {{ $paginator := .Paginate (where .Data.Pages "Type" "ne"
+                "page") 5 }} {{ range $paginator.Pages }}
+                <article class="article-card">
+                    <a
+                        href="{{ .Permalink }}"
+                        class="card-link-overlay"
+                        aria-label="Read {{ .Title }}"
+                    ></a>
+
+                    <div class="card-image">
+                        {{ $img := .Resources.GetMatch .Params.featured_image }}
+                        {{/* Auto-find fallback: first image in page bundle */}}
+                        {{ if not $img }} {{ $img = .Resources.GetMatch
+                        "images/*" }} {{ end }} {{ if $img }} {{/* FIXED: The
+                        resize string is now on a single line */}} {{ $thumb :=
+                        $img.Resize "600x400 webp q90" }}
+                        <img
+                            src="{{ $thumb.RelPermalink }}"
+                            alt="{{ .Title }}"
+                            loading="lazy"
+                        />
+                        {{ else }}
+                        <div
+                            style="
+                                width: 100%;
+                                height: 100%;
+                                background: #eee;
+                                display: flex;
+                                align-items: center;
+                                justify-content: center;
+                                color: #ccc;
+                            "
+                        >
+                            No Image
+                        </div>
+                        {{ end }}
+                    </div>
+
+                    <div class="card-content">
+                        <div class="card-date">
+                            {{ .Date.Format "January 2, 2006" }}
+                        </div>
+                        <h2 class="card-title">{{ .Title }}</h2>
+                        <p class="card-excerpt">
+                            {{ .Summary | truncate 130 }}
+                        </p>
+                        <span class="read-more">Read Article &rarr;</span>
+                    </div>
+                </article>
+                {{ end }}
+            </div>
+
+            <div class="pagination-wrapper">
+                {{ if $paginator.HasPrev }}
+                <a
+                    href="{{ $paginator.Prev.URL }}"
+                    class="arrow-btn"
+                    aria-label="Previous"
+                    >&lt;</a
+                >
+                {{ else }}
+                <span class="arrow-btn disabled">&lt;</span>
+                {{ end }}
+
+                <span style="font-size: 0.9rem; color: #888"
+                    >Page {{ $paginator.PageNumber }} / {{ $paginator.TotalPages
+                    }}</span
+                >
+
+                {{ if $paginator.HasNext }}
+                <a
+                    href="{{ $paginator.Next.URL }}"
+                    class="arrow-btn"
+                    aria-label="Next"
+                    >&gt;</a
+                >
+                {{ else }}
+                <span class="arrow-btn disabled">&gt;</span>
+                {{ end }}
+            </div>
+        </div>
+    </body>
+</html>
+
+</file>
+
+<file path="./content/_index.md">
+---
+title: "Neda's Little Shop"
+layout: "landing"
+subtitle: "High-Quality Home-Made"
+center_image: "/images/cloud-logo.png"
+# --- NAVIGATION ---
+left_link: "/summer-landing/"    # Switches to Summer Landing
+right_link: "/neda-gallery/"     # Switches to Neda Gallery
+# --- DESIGN CONTROLS ---
+text_color: "black"         # Hex code (#ff0000) or name (red)
+img_width: "450px"          # Size of the center element
+img_opacity: "0.7"          # 0.0 to 1.0
+pos_x: "0px"                # Move left/right (-50px goes left)
+pos_y: "-30px"                # Move up/down (-50px goes up)
+# -----------------------
+background_images:
+  - "/images/1.jpg"
+  - "/images/2.jpg"
+  - "/images/3.jpg"
+---
+
+</file>
+
+<file path="./content/summer-landing.md">
+---
+title: "Sara Partizan"
+layout: "landing"
+subtitle: "Fresh Looks for the Season"
+center_image: "/images/sun-logo.png"
+left_link: "/"                   # Switches back to Neda Home
+right_link: "/summer-sale/"      # Switches to Summer Gallery
+# --- DESIGN CONTROLS ---
+text_color: "white"       # Gold text
+img_width: "450px"          # Bigger sun image
+img_opacity: "0.8"          # Fully visible
+pos_x: "0px"
+pos_y: "0px"              # Shifted slightly up
+# -----------------------
+background_images:
+- "/images/summer1.png"
+- "/images/2.jpg"
+- "/images/summer3.png"
+---
+
+</file>
+
+<file path="./content/summer-sale/index.md">
+---
+title: "Summer Collection"
+type: "products"
+layout: "gallery"
+next_page_url: "/winter-sale/" 
+back_link: "/summer-landing/"    # Back to Landing
+---
+Here is the text that correlates to this gallery. 
+
+Because we are using CSS Grid, this text block will automatically sit **beside** the image on laptops, but move **below** the image on phones.
+
+</file>
+
+<file path="./content/neda-gallery/index.md">
+---
+title: "Neda's Collection"
+type: "products"
+layout: "gallery"
+back_link: "/"   # Clicking 'X' returns to the Main Home Page
+---
+
+Welcome to my main collection! 
+
+These are my personal favorites and classic items. Scroll down to see the full grid of products.
+
+</file>
+
+<file path="./content/posts/_index.md">
+---
+title: "Posts"
+---
+
+</file>
+
+<file path="./content/posts/sample-post-1/index.md">
+---
+title: "Getting Started with Handmade Crafts"
+date: 2024-01-15
+featured_image: "images/cover.jpg"
+categories: ["Crafts"]
+---
+
+Sample post content here.
+
+</file>
+
+<file path="./content/posts/sample-post-2/index.md">
+---
+title: "Summer Collection Preview"
+date: 2024-02-20
+featured_image: "images/cover.jpg"
+categories: ["Collections"]
+---
+
+Sample post content here.
+
+</file>
+
+<file path="./content/posts/sample-post-3/index.md">
+---
+title: "Behind the Scenes"
+date: 2024-03-10
+featured_image: "images/cover.jpg"
+categories: ["News"]
+---
+
+Sample post content here.
+
+</file>

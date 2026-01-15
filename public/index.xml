@@ -6,13 +6,49 @@
     <description>Recent content on Neda&#39;s Little Shop</description>
     <generator>Hugo</generator>
     <language>en-us</language>
+    <lastBuildDate>Sun, 10 Mar 2024 00:00:00 +0000</lastBuildDate>
     <atom:link href="http://localhost:1313/index.xml" rel="self" type="application/rss+xml" />
     <item>
+      <title>Behind the Scenes</title>
+      <link>http://localhost:1313/posts/sample-post-3/</link>
+      <pubDate>Sun, 10 Mar 2024 00:00:00 +0000</pubDate>
+      <guid>http://localhost:1313/posts/sample-post-3/</guid>
+      <description>&lt;p&gt;Sample post content here.&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>Summer Collection Preview</title>
+      <link>http://localhost:1313/posts/sample-post-2/</link>
+      <pubDate>Tue, 20 Feb 2024 00:00:00 +0000</pubDate>
+      <guid>http://localhost:1313/posts/sample-post-2/</guid>
+      <description>&lt;p&gt;Sample post content here.&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>Getting Started with Handmade Crafts</title>
+      <link>http://localhost:1313/posts/sample-post-1/</link>
+      <pubDate>Mon, 15 Jan 2024 00:00:00 +0000</pubDate>
+      <guid>http://localhost:1313/posts/sample-post-1/</guid>
+      <description>&lt;p&gt;Sample post content here.&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>Neda&#39;s Collection</title>
+      <link>http://localhost:1313/neda-gallery/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>http://localhost:1313/neda-gallery/</guid>
+      <description>&lt;p&gt;Welcome to my main collection!&lt;/p&gt;&#xA;&lt;p&gt;These are my personal favorites and classic items. Scroll down to see the full grid of products.&lt;/p&gt;</description>
+    </item>
+    <item>
       <title>Sara Partizan</title>
+      <link>http://localhost:1313/summer-landing/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>http://localhost:1313/summer-landing/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Summer Collection</title>
       <link>http://localhost:1313/summer-sale/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       <guid>http://localhost:1313/summer-sale/</guid>
-      <description></description>
+      <description>&lt;p&gt;Here is the text that correlates to this gallery.&lt;/p&gt;&#xA;&lt;p&gt;Because we are using CSS Grid, this text block will automatically sit &lt;strong&gt;beside&lt;/strong&gt; the image on laptops, but move &lt;strong&gt;below&lt;/strong&gt; the image on phones.&lt;/p&gt;</description>
     </item>
   </channel>
 </rss>

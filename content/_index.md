@@ -3,6 +3,9 @@ title: "Neda's Little Shop"
 layout: "landing"
 subtitle: "High-Quality Home-Made"
 center_image: "/images/cloud-logo.png"
+# --- NAVIGATION ---
+left_link: "/summer-landing/"    # Switches to Summer Landing
+right_link: "/neda-gallery/"     # Switches to Neda Gallery
 # --- DESIGN CONTROLS ---
 text_color: "black"         # Hex code (#ff0000) or name (red)
 img_width: "450px"          # Size of the center element

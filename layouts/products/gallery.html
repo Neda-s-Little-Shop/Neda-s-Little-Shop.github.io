@@ -1,0 +1,571 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{{ .Title }}</title>
+
+    {{/* --- LCP: Preload First Gallery Image --- */}}
+    {{ $gallery := .Resources.Match "gallery/*" }}
+    {{ $first := index $gallery 0 }}
+    {{ if $first }}
+        {{ $preload := $first.Resize "1200x webp" }}
+        <link rel="preload" as="image" href="{{ $preload.RelPermalink }}">
+    {{ end }}
+
+    <style>
+        /* ============================================
+           RESET & BASE
+           ============================================ */
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+        html, body {
+            height: 100%;
+            overflow: hidden;
+            background: #0a0a0a;
+            color: #fff;
+            font-family: system-ui, -apple-system, sans-serif;
+        }
+
+        /* ============================================
+           SCROLL SNAP CONTAINER (Full-Page Scroll)
+           ============================================ */
+        .gallery-snap {
+            height: 100vh;
+            overflow-y: scroll;
+            scroll-snap-type: y mandatory;
+            scroll-behavior: smooth;
+            scrollbar-width: none;
+        }
+        .gallery-snap::-webkit-scrollbar { display: none; }
+
+        .snap-page {
+            height: 100vh;
+            width: 100%;
+            scroll-snap-align: start;
+            scroll-snap-stop: always;
+            overflow: hidden;
+        }
+
+        /* ============================================
+           X CLOSE BUTTON (Top-Right)
+           ============================================ */
+        .nav-back {
+            position: fixed;
+            top: 12px;
+            right: 12px;
+            z-index: 1000;
+            width: 40px;
+            height: 40px;
+            background: transparent;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            text-decoration: none;
+            opacity: 0.5;
+            transition: opacity 0.2s;
+        }
+        .nav-back:hover { opacity: 1; }
+        .nav-back svg { fill: #fff; width: 28px; height: 28px; }
+
+        /* ============================================
+           PAGE 1: VIEWER SECTION
+           ============================================ */
+        .viewer-page {
+            display: flex;
+            flex-direction: column;
+            padding: 60px 20px 20px;
+        }
+
+        /* Headline */
+        .viewer-headline {
+            text-align: center;
+            font-size: clamp(1.4rem, 4vw, 2.2rem);
+            font-weight: 600;
+            margin-bottom: 16px;
+            letter-spacing: 0.5px;
+        }
+
+        /* Main Content Area */
+        .viewer-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            min-height: 0;
+        }
+
+        /* --- MAIN IMAGE STAGE --- */
+        .image-stage {
+            flex: 1;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 0;
+        }
+        .image-stage img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+            border-radius: 6px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+            transition: opacity 0.25s ease;
+        }
+
+        /* Prev/Next Arrows */
+        .arrow-btn {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 48px;
+            height: 48px;
+            background: rgba(0,0,0,0.4);
+            border: none;
+            border-radius: 50%;
+            color: #fff;
+            font-size: 1.6rem;
+            cursor: pointer;
+            opacity: 0.5;
+            transition: opacity 0.2s, background 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .arrow-btn:hover { opacity: 1; background: rgba(0,0,0,0.7); }
+        .arrow-prev { left: 8px; }
+        .arrow-next { right: 8px; }
+
+        /* --- THUMBNAIL STRIP (Portrait: Horizontal) --- */
+        .thumb-strip {
+            display: flex;
+            gap: 10px;
+            overflow-x: auto;
+            scroll-snap-type: x mandatory;
+            padding: 8px 4px;
+            scrollbar-width: none;
+        }
+        .thumb-strip::-webkit-scrollbar { display: none; }
+
+        .thumb-item {
+            flex: 0 0 auto;
+            width: 80px;
+            aspect-ratio: 4/3;
+            scroll-snap-align: center;
+            cursor: pointer;
+            opacity: 0.5;
+            border: 2px solid transparent;
+            border-radius: 6px;
+            overflow: hidden;
+            transition: opacity 0.2s, border-color 0.2s, transform 0.2s;
+        }
+        .thumb-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .thumb-item:hover { opacity: 0.8; transform: scale(1.05); }
+        .thumb-item.active { opacity: 1; border-color: #fff; }
+
+        /* --- TEXT BLOCK --- */
+        .viewer-text {
+            padding: 12px 8px;
+            color: #ccc;
+            line-height: 1.5;
+            font-size: 0.95rem;
+            max-height: 120px;
+            overflow-y: auto;
+        }
+
+        /* --- SIDEBAR (for Landscape: Thumbs + Text) --- */
+        .viewer-sidebar {
+            display: none;
+            flex-direction: column;
+            gap: 12px;
+            width: 180px;
+            flex-shrink: 0;
+        }
+        .viewer-sidebar .thumb-strip {
+            flex-direction: column;
+            overflow-y: auto;
+            overflow-x: hidden;
+            max-height: 50vh;
+        }
+        .viewer-sidebar .thumb-item {
+            width: 100%;
+        }
+
+        /* ============================================
+           PAGE 2: GRID SECTION
+           ============================================ */
+        .grid-page {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            padding: 0;
+        }
+
+        /* Side Arrows (Fixed on edges) */
+        .grid-side-arrow {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 100;
+            background: transparent;
+            border: none;
+            color: #fff;
+            font-size: 3rem;
+            cursor: pointer;
+            opacity: 0.3;
+            transition: opacity 0.2s;
+            padding: 20px 8px;
+            height: 120px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .grid-side-arrow:hover { opacity: 0.8; }
+        .grid-side-arrow:disabled { opacity: 0.1; cursor: default; }
+        .grid-side-arrow.left { left: 0; }
+        .grid-side-arrow.right { right: 0; }
+
+        /* Grid Container (Horizontal Snap) */
+        .grid-carousel {
+            flex: 1;
+            height: 100%;
+            display: flex;
+            overflow-x: scroll;
+            scroll-snap-type: x mandatory;
+            scroll-behavior: smooth;
+            scrollbar-width: none;
+        }
+        .grid-carousel::-webkit-scrollbar { display: none; }
+
+        /* Single Grid Page - Auto-fit magic */
+        .grid-panel {
+            flex: 0 0 100%;
+            scroll-snap-align: start;
+            height: 100%;
+            display: grid;
+            /* Auto-fit: fills available space, min 150px per item */
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            grid-auto-rows: 1fr;
+            gap: 8px;
+            padding: 12px 50px; /* Side padding for arrows */
+            align-content: center;
+        }
+
+        .grid-item {
+            aspect-ratio: 4/3;
+            border-radius: 8px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .grid-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .grid-item:hover {
+            transform: scale(1.04);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.6);
+            z-index: 10;
+            position: relative;
+        }
+
+        /* ============================================
+           LANDSCAPE LAYOUT
+           ============================================ */
+        @media (min-aspect-ratio: 1/1) {
+            .viewer-content {
+                flex-direction: row;
+            }
+
+            .viewer-sidebar {
+                display: flex;
+            }
+
+            .thumb-strip-inline {
+                display: none;
+            }
+
+            /* Grid: Larger minimum for wider screens */
+            .grid-panel {
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+                padding: 16px 60px;
+            }
+        }
+
+        @media (max-aspect-ratio: 1/1) {
+            .viewer-sidebar { display: none; }
+        }
+
+        @media (min-width: 1400px) {
+            .grid-panel {
+                grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            }
+        }
+
+        /* Scroll Hint */
+        .scroll-hint {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: #444;
+            font-size: 0.8rem;
+            text-align: center;
+            animation: bounce 2s infinite;
+        }
+        .scroll-hint svg {
+            display: block;
+            margin: 4px auto 0;
+            fill: #444;
+        }
+        @keyframes bounce {
+            0%, 100% { transform: translateX(-50%) translateY(0); }
+            50% { transform: translateX(-50%) translateY(6px); }
+        }
+    </style>
+</head>
+<body>
+
+    {{/* --- CLOSE BUTTON (Top-Right) --- */}}
+    {{ if .Params.back_link }}
+    <a href="{{ .Params.back_link }}" class="nav-back" aria-label="Close">
+        <svg viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+    </a>
+    {{ end }}
+
+    {{/* --- BUILD IMAGE ARRAYS --- */}}
+    {{ $gallery := .Resources.Match "gallery/*" }}
+    {{ $imagesPerPage := 12 }}
+
+    <div class="gallery-snap" id="gallery-snap">
+
+        <!-- ==========================================
+             PAGE 1: VIEWER
+             ========================================== -->
+        <section class="snap-page viewer-page" id="page-viewer">
+
+            <h1 class="viewer-headline">{{ .Title }}</h1>
+
+            <div class="viewer-content">
+
+                <!-- Main Image -->
+                <div class="image-stage">
+                    {{ if $first }}
+                        {{ $large := $first.Resize "1200x webp" }}
+                        <img id="main-image" src="{{ $large.RelPermalink }}" alt="{{ .Title }}" loading="eager">
+                    {{ end }}
+                    <button class="arrow-btn arrow-prev" id="prev-main" aria-label="Previous">&#8249;</button>
+                    <button class="arrow-btn arrow-next" id="next-main" aria-label="Next">&#8250;</button>
+                </div>
+
+                <!-- Sidebar (Landscape: Thumbs + Text) -->
+                <aside class="viewer-sidebar">
+                    <div class="thumb-strip">
+                        {{ range $i, $img := $gallery }}
+                            {{ $thumb := $img.Resize "200x webp q80" }}
+                            {{ $large := $img.Resize "1200x webp" }}
+                            <div class="thumb-item{{ if eq $i 0 }} active{{ end }}"
+                                 data-index="{{ $i }}"
+                                 data-src="{{ $large.RelPermalink }}">
+                                <img src="{{ $thumb.RelPermalink }}" alt="Thumbnail" loading="lazy">
+                            </div>
+                        {{ end }}
+                    </div>
+                    <div class="viewer-text">
+                        {{ .Content }}
+                    </div>
+                </aside>
+
+            </div>
+
+            <!-- Thumbnail Strip (Portrait: Inline Horizontal) -->
+            <div class="thumb-strip thumb-strip-inline">
+                {{ range $i, $img := $gallery }}
+                    {{ $thumb := $img.Resize "200x webp q80" }}
+                    {{ $large := $img.Resize "1200x webp" }}
+                    <div class="thumb-item{{ if eq $i 0 }} active{{ end }}"
+                         data-index="{{ $i }}"
+                         data-src="{{ $large.RelPermalink }}">
+                        <img src="{{ $thumb.RelPermalink }}" alt="Thumbnail" loading="lazy">
+                    </div>
+                {{ end }}
+            </div>
+
+            <!-- Text (Portrait: Below) -->
+            <div class="viewer-text" style="display: block;">
+                {{ .Content }}
+            </div>
+
+            <div class="scroll-hint">
+                Scroll for more
+                <svg width="20" height="20" viewBox="0 0 24 24"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6z"/></svg>
+            </div>
+
+        </section>
+
+        <!-- ==========================================
+             PAGE 2: GRID
+             ========================================== -->
+        <section class="snap-page grid-page" id="page-grid">
+
+            <!-- Side Arrows -->
+            <button class="grid-side-arrow left" id="grid-prev" aria-label="Previous page">&#8249;</button>
+            <button class="grid-side-arrow right" id="grid-next" aria-label="Next page">&#8250;</button>
+
+            <div class="grid-carousel" id="grid-carousel">
+                {{/* Split images into pages */}}
+                {{ $total := len $gallery }}
+                {{ $pages := int (math.Ceil (div (float $total) (float $imagesPerPage))) }}
+
+                {{ range $pageNum := seq $pages }}
+                    {{ $start := mul (sub $pageNum 1) $imagesPerPage }}
+                    {{ $end := add $start $imagesPerPage }}
+                    {{ if gt $end $total }}{{ $end = $total }}{{ end }}
+
+                    <div class="grid-panel" data-page="{{ $pageNum }}">
+                        {{ range $i := seq $start (sub $end 1) }}
+                            {{ $img := index $gallery $i }}
+                            {{ $thumb := $img.Resize "400x webp q85" }}
+                            {{ $large := $img.Resize "1200x webp" }}
+                            <div class="grid-item"
+                                 data-index="{{ $i }}"
+                                 data-src="{{ $large.RelPermalink }}">
+                                <img src="{{ $thumb.RelPermalink }}" alt="Gallery" loading="lazy">
+                            </div>
+                        {{ end }}
+                    </div>
+                {{ end }}
+            </div>
+
+        </section>
+
+    </div>
+
+    <script>
+    (function() {
+        // --- DATA ---
+        const images = [
+            {{ range $gallery }}
+            "{{ (.Resize "1200x webp").RelPermalink }}",
+            {{ end }}
+        ];
+        const totalImages = images.length;
+        let currentIndex = 0;
+
+        // --- DOM ---
+        const mainImg = document.getElementById('main-image');
+        const snapContainer = document.getElementById('gallery-snap');
+        const thumbsInline = document.querySelectorAll('.thumb-strip-inline .thumb-item');
+        const thumbsSidebar = document.querySelectorAll('.viewer-sidebar .thumb-item');
+        const allThumbs = document.querySelectorAll('.thumb-item');
+        const gridItems = document.querySelectorAll('.grid-item');
+        const gridCarousel = document.getElementById('grid-carousel');
+        const gridPanels = document.querySelectorAll('.grid-panel');
+        const gridPrev = document.getElementById('grid-prev');
+        const gridNext = document.getElementById('grid-next');
+
+        let currentGridPage = 0;
+        const totalGridPages = gridPanels.length;
+
+        // --- FUNCTIONS ---
+
+        function updateMainImage(index) {
+            if (index < 0 || index >= totalImages) return;
+            currentIndex = index;
+
+            // Fade transition
+            mainImg.style.opacity = '0';
+            setTimeout(() => {
+                mainImg.src = images[index];
+                mainImg.style.opacity = '1';
+            }, 150);
+
+            // Update active state on all thumbs
+            allThumbs.forEach(t => {
+                t.classList.toggle('active', parseInt(t.dataset.index) === index);
+            });
+        }
+
+        function scrollToViewer() {
+            snapContainer.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function updateGridNav() {
+            gridPrev.disabled = currentGridPage === 0;
+            gridNext.disabled = currentGridPage >= totalGridPages - 1;
+        }
+
+        function scrollGridTo(pageIndex) {
+            if (pageIndex < 0 || pageIndex >= totalGridPages) return;
+            currentGridPage = pageIndex;
+            gridPanels[pageIndex].scrollIntoView({ behavior: 'smooth', inline: 'start', block: 'nearest' });
+            updateGridNav();
+        }
+
+        // --- INIT ---
+        updateGridNav();
+
+        // --- EVENT LISTENERS ---
+
+        // Main Prev/Next
+        document.getElementById('prev-main').addEventListener('click', () => {
+            updateMainImage((currentIndex - 1 + totalImages) % totalImages);
+        });
+        document.getElementById('next-main').addEventListener('click', () => {
+            updateMainImage((currentIndex + 1) % totalImages);
+        });
+
+        // Thumbnail Clicks
+        allThumbs.forEach(thumb => {
+            thumb.addEventListener('click', () => {
+                const idx = parseInt(thumb.dataset.index);
+                updateMainImage(idx);
+            });
+        });
+
+        // Grid Item Clicks
+        gridItems.forEach(item => {
+            item.addEventListener('click', () => {
+                const idx = parseInt(item.dataset.index);
+                updateMainImage(idx);
+                scrollToViewer();
+            });
+        });
+
+        // Grid Pagination
+        gridPrev.addEventListener('click', () => scrollGridTo(currentGridPage - 1));
+        gridNext.addEventListener('click', () => scrollGridTo(currentGridPage + 1));
+
+        // Detect grid scroll (for manual swipe)
+        gridCarousel.addEventListener('scroll', () => {
+            const scrollLeft = gridCarousel.scrollLeft;
+            const panelWidth = gridCarousel.offsetWidth;
+            const newPage = Math.round(scrollLeft / panelWidth);
+            if (newPage !== currentGridPage) {
+                currentGridPage = newPage;
+                updateGridNav();
+            }
+        });
+
+        // Keyboard Navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft') {
+                updateMainImage((currentIndex - 1 + totalImages) % totalImages);
+            } else if (e.key === 'ArrowRight') {
+                updateMainImage((currentIndex + 1) % totalImages);
+            }
+        });
+
+    })();
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,1609 @@
+<!doctype html>
+<html lang="en">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Neda&#39;s Collection</title>
+
+    
+    
+    
+    
+        
+        <link rel="preload" as="image" href="/neda-gallery/gallery/screen_20260108_081122_hu_b436b8405ea5f534.webp">
+    
+
+    <style>
+         
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+        html, body {
+            height: 100%;
+            overflow: hidden;
+            background: #0a0a0a;
+            color: #fff;
+            font-family: system-ui, -apple-system, sans-serif;
+        }
+
+         
+        .gallery-snap {
+            height: 100vh;
+            overflow-y: scroll;
+            scroll-snap-type: y mandatory;
+            scroll-behavior: smooth;
+            scrollbar-width: none;
+        }
+        .gallery-snap::-webkit-scrollbar { display: none; }
+
+        .snap-page {
+            height: 100vh;
+            width: 100%;
+            scroll-snap-align: start;
+            scroll-snap-stop: always;
+            overflow: hidden;
+        }
+
+         
+        .nav-back {
+            position: fixed;
+            top: 12px;
+            right: 12px;
+            z-index: 1000;
+            width: 40px;
+            height: 40px;
+            background: transparent;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            text-decoration: none;
+            opacity: 0.5;
+            transition: opacity 0.2s;
+        }
+        .nav-back:hover { opacity: 1; }
+        .nav-back svg { fill: #fff; width: 28px; height: 28px; }
+
+         
+        .viewer-page {
+            display: flex;
+            flex-direction: column;
+            padding: 60px 20px 20px;
+        }
+
+         
+        .viewer-headline {
+            text-align: center;
+            font-size: clamp(1.4rem, 4vw, 2.2rem);
+            font-weight: 600;
+            margin-bottom: 16px;
+            letter-spacing: 0.5px;
+        }
+
+         
+        .viewer-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            min-height: 0;
+        }
+
+         
+        .image-stage {
+            flex: 1;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 0;
+        }
+        .image-stage img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+            border-radius: 6px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+            transition: opacity 0.25s ease;
+        }
+
+         
+        .arrow-btn {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 48px;
+            height: 48px;
+            background: rgba(0,0,0,0.4);
+            border: none;
+            border-radius: 50%;
+            color: #fff;
+            font-size: 1.6rem;
+            cursor: pointer;
+            opacity: 0.5;
+            transition: opacity 0.2s, background 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .arrow-btn:hover { opacity: 1; background: rgba(0,0,0,0.7); }
+        .arrow-prev { left: 8px; }
+        .arrow-next { right: 8px; }
+
+         
+        .thumb-strip {
+            display: flex;
+            gap: 10px;
+            overflow-x: auto;
+            scroll-snap-type: x mandatory;
+            padding: 8px 4px;
+            scrollbar-width: none;
+        }
+        .thumb-strip::-webkit-scrollbar { display: none; }
+
+        .thumb-item {
+            flex: 0 0 auto;
+            width: 80px;
+            aspect-ratio: 4/3;
+            scroll-snap-align: center;
+            cursor: pointer;
+            opacity: 0.5;
+            border: 2px solid transparent;
+            border-radius: 6px;
+            overflow: hidden;
+            transition: opacity 0.2s, border-color 0.2s, transform 0.2s;
+        }
+        .thumb-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .thumb-item:hover { opacity: 0.8; transform: scale(1.05); }
+        .thumb-item.active { opacity: 1; border-color: #fff; }
+
+         
+        .viewer-text {
+            padding: 12px 8px;
+            color: #ccc;
+            line-height: 1.5;
+            font-size: 0.95rem;
+            max-height: 120px;
+            overflow-y: auto;
+        }
+
+         
+        .viewer-sidebar {
+            display: none;
+            flex-direction: column;
+            gap: 12px;
+            width: 180px;
+            flex-shrink: 0;
+        }
+        .viewer-sidebar .thumb-strip {
+            flex-direction: column;
+            overflow-y: auto;
+            overflow-x: hidden;
+            max-height: 50vh;
+        }
+        .viewer-sidebar .thumb-item {
+            width: 100%;
+        }
+
+         
+        .grid-page {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            padding: 0;
+        }
+
+         
+        .grid-side-arrow {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 100;
+            background: transparent;
+            border: none;
+            color: #fff;
+            font-size: 3rem;
+            cursor: pointer;
+            opacity: 0.3;
+            transition: opacity 0.2s;
+            padding: 20px 8px;
+            height: 120px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .grid-side-arrow:hover { opacity: 0.8; }
+        .grid-side-arrow:disabled { opacity: 0.1; cursor: default; }
+        .grid-side-arrow.left { left: 0; }
+        .grid-side-arrow.right { right: 0; }
+
+         
+        .grid-carousel {
+            flex: 1;
+            height: 100%;
+            display: flex;
+            overflow-x: scroll;
+            scroll-snap-type: x mandatory;
+            scroll-behavior: smooth;
+            scrollbar-width: none;
+        }
+        .grid-carousel::-webkit-scrollbar { display: none; }
+
+         
+        .grid-panel {
+            flex: 0 0 100%;
+            scroll-snap-align: start;
+            height: 100%;
+            display: grid;
+             
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            grid-auto-rows: 1fr;
+            gap: 8px;
+            padding: 12px 50px;  
+            align-content: center;
+        }
+
+        .grid-item {
+            aspect-ratio: 4/3;
+            border-radius: 8px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .grid-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .grid-item:hover {
+            transform: scale(1.04);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.6);
+            z-index: 10;
+            position: relative;
+        }
+
+         
+        @media (min-aspect-ratio: 1/1) {
+            .viewer-content {
+                flex-direction: row;
+            }
+
+            .viewer-sidebar {
+                display: flex;
+            }
+
+            .thumb-strip-inline {
+                display: none;
+            }
+
+             
+            .grid-panel {
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+                padding: 16px 60px;
+            }
+        }
+
+        @media (max-aspect-ratio: 1/1) {
+            .viewer-sidebar { display: none; }
+        }
+
+        @media (min-width: 1400px) {
+            .grid-panel {
+                grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            }
+        }
+
+         
+        .scroll-hint {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: #444;
+            font-size: 0.8rem;
+            text-align: center;
+            animation: bounce 2s infinite;
+        }
+        .scroll-hint svg {
+            display: block;
+            margin: 4px auto 0;
+            fill: #444;
+        }
+        @keyframes bounce {
+            0%, 100% { transform: translateX(-50%) translateY(0); }
+            50% { transform: translateX(-50%) translateY(6px); }
+        }
+    </style>
+</head>
+<body>
+
+    
+    
+    <a href="/" class="nav-back" aria-label="Close">
+        <svg viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+    </a>
+    
+
+    
+    
+    
+
+    <div class="gallery-snap" id="gallery-snap">
+
+        
+        <section class="snap-page viewer-page" id="page-viewer">
+
+            <h1 class="viewer-headline">Neda&#39;s Collection</h1>
+
+            <div class="viewer-content">
+
+                
+                <div class="image-stage">
+                    
+                        
+                        <img id="main-image" src="/neda-gallery/gallery/screen_20260108_081122_hu_b436b8405ea5f534.webp" alt="Neda&#39;s Collection" loading="eager">
+                    
+                    <button class="arrow-btn arrow-prev" id="prev-main" aria-label="Previous">&#8249;</button>
+                    <button class="arrow-btn arrow-next" id="next-main" aria-label="Next">&#8250;</button>
+                </div>
+
+                
+                <aside class="viewer-sidebar">
+                    <div class="thumb-strip">
+                        
+                            
+                            
+                            <div class="thumb-item active"
+                                 data-index="0"
+                                 data-src="/neda-gallery/gallery/screen_20260108_081122_hu_b436b8405ea5f534.webp">
+                                <img src="/neda-gallery/gallery/screen_20260108_081122_hu_53333430ddcd6fe1.webp" alt="Thumbnail" loading="lazy">
+                            </div>
+                        
+                            
+                            
+                            <div class="thumb-item"
+                                 data-index="1"
+                                 data-src="/neda-gallery/gallery/screen_20260108_081159_hu_f0423dc7058df04c.webp">
+                                <img src="/neda-gallery/gallery/screen_20260108_081159_hu_689bd9b451ffa53b.webp" alt="Thumbnail" loading="lazy">
+                            </div>
+                        
+                            
+                            
+                            <div class="thumb-item"
+                                 data-index="2"
+                                 data-src="/neda-gallery/gallery/screen_20260108_082110_hu_15c8f725e4716c88.webp">
+                                <img src="/neda-gallery/gallery/screen_20260108_082110_hu_8e859792719151c3.webp" alt="Thumbnail" loading="lazy">
+                            </div>
+                        
+                            
+                            
+                            <div class="thumb-item"
+                                 data-index="3"
+                                 data-src="/neda-gallery/gallery/screen_20260108_083348_hu_bd0f903e6ad1a606.webp">
+                                <img src="/neda-gallery/gallery/screen_20260108_083348_hu_8162c336b8335ed8.webp" alt="Thumbnail" loading="lazy">
+                            </div>
+                        
+                            
+                            
+                            <div class="thumb-item"
+                                 data-index="4"
+                                 data-src="/neda-gallery/gallery/screen_20260108_083604_hu_ae6c238e702bd924.webp">
+                                <img src="/neda-gallery/gallery/screen_20260108_083604_hu_43e458ec0511a2c9.webp" alt="Thumbnail" loading="lazy">
+                            </div>
+                        
+                            
+                            
+                            <div class="thumb-item"
+                                 data-index="5"
+                                 data-src="/neda-gallery/gallery/screen_20260108_084026_hu_6d181935483d4e76.webp">
+                                <img src="/neda-gallery/gallery/screen_20260108_084026_hu_ca201cc11038302b.webp" alt="Thumbnail" loading="lazy">
+                            </div>
+                        
+                            
+                            
+                            <div class="thumb-item"
+                                 data-index="6"
+                                 data-src="/neda-gallery/gallery/screen_20260110_010826_hu_989aaee7f559798e.webp">
+                                <img src="/neda-gallery/gallery/screen_20260110_010826_hu_22d6fe6ce2c785a3.webp" alt="Thumbnail" loading="lazy">
+                            </div>
+                        
+                            
+                            
+                            <div class="thumb-item"
+                                 data-index="7"
+                                 data-src="/neda-gallery/gallery/screen_20260110_014759_hu_7ea5044d13b39670.webp">
+                                <img src="/neda-gallery/gallery/screen_20260110_014759_hu_70ca3e1a5d4f4228.webp" alt="Thumbnail" loading="lazy">
+                            </div>
+                        
+                            
+                            
+                            <div class="thumb-item"
+                                 data-index="8"
+                                 data-src="/neda-gallery/gallery/screen_20260110_022343_hu_af543440e5270f8e.webp">
+                                <img src="/neda-gallery/gallery/screen_20260110_022343_hu_8cf5d76f46e5b1a1.webp" alt="Thumbnail" loading="lazy">
+                            </div>
+                        
+                            
+                            
+                            <div class="thumb-item"
+                                 data-index="9"
+                                 data-src="/neda-gallery/gallery/screen_20260110_022359_hu_c4e0d910a0d31cc9.webp">
+                                <img src="/neda-gallery/gallery/screen_20260110_022359_hu_d050094e3e2a1e13.webp" alt="Thumbnail" loading="lazy">
+                            </div>
+                        
+                            
+                            
+                            <div class="thumb-item"
+                                 data-index="10"
+                                 data-src="/neda-gallery/gallery/screen_20260110_022410_hu_3c0af39ddd5f5f.webp">
+                                <img src="/neda-gallery/gallery/screen_20260110_022410_hu_e39d34773950071c.webp" alt="Thumbnail" loading="lazy">
+                            </div>
+                        
+                            
+                            
+                            <div class="thumb-item"
+                                 data-index="11"
+                                 data-src="/neda-gallery/gallery/screen_20260110_022803_hu_e66d4d282c1adfb3.webp">
+                                <img src="/neda-gallery/gallery/screen_20260110_022803_hu_6d31707d38a31506.webp" alt="Thumbnail" loading="lazy">
+                            </div>
+                        
+                            
+                            
+                            <div class="thumb-item"
+                                 data-index="12"
+                                 data-src="/neda-gallery/gallery/screen_20260110_023002_hu_ad7490ff256df9c8.webp">
+                                <img src="/neda-gallery/gallery/screen_20260110_023002_hu_d1a3b5b31602f682.webp" alt="Thumbnail" loading="lazy">
+                            </div>
+                        
+                            
+                            
+                            <div class="thumb-item"
+                                 data-index="13"
+                                 data-src="/neda-gallery/gallery/screen_20260110_023028_hu_15b2baeb2acf8425.webp">
+                                <img src="/neda-gallery/gallery/screen_20260110_023028_hu_7dc42c17f07c0cb0.webp" alt="Thumbnail" loading="lazy">
+                            </div>
+                        
+                            
+                            
+                            <div class="thumb-item"
+                                 data-index="14"
+                                 data-src="/neda-gallery/gallery/screen_20260110_085646_hu_c3818fa73f2efdc5.webp">
+                                <img src="/neda-gallery/gallery/screen_20260110_085646_hu_1a0735221c12ce54.webp" alt="Thumbnail" loading="lazy">
+                            </div>
+                        
+                            
+                            
+                            <div class="thumb-item"
+                                 data-index="15"
+                                 data-src="/neda-gallery/gallery/screen_20260110_085739_hu_fce8f7c3f68924ae.webp">
+                                <img src="/neda-gallery/gallery/screen_20260110_085739_hu_7f0e6c927f316bdf.webp" alt="Thumbnail" loading="lazy">
+                            </div>
+                        
+                            
+                            
+                            <div class="thumb-item"
+                                 data-index="16"
+                                 data-src="/neda-gallery/gallery/screen_20260110_092130_hu_f51712c27633d6c8.webp">
+                                <img src="/neda-gallery/gallery/screen_20260110_092130_hu_f8f177ed96b5dea.webp" alt="Thumbnail" loading="lazy">
+                            </div>
+                        
+                            
+                            
+                            <div class="thumb-item"
+                                 data-index="17"
+                                 data-src="/neda-gallery/gallery/screen_20260110_093306_hu_dacfb0adf7e82fc7.webp">
+                                <img src="/neda-gallery/gallery/screen_20260110_093306_hu_5f1003f1689817fe.webp" alt="Thumbnail" loading="lazy">
+                            </div>
+                        
+                            
+                            
+                            <div class="thumb-item"
+                                 data-index="18"
+                                 data-src="/neda-gallery/gallery/screen_20260110_103350_hu_290f5cb849a973ec.webp">
+                                <img src="/neda-gallery/gallery/screen_20260110_103350_hu_ecf54c037426abb8.webp" alt="Thumbnail" loading="lazy">
+                            </div>
+                        
+                            
+                            
+                            <div class="thumb-item"
+                                 data-index="19"
+                                 data-src="/neda-gallery/gallery/screen_20260110_103405_hu_5fcd44da767f950b.webp">
+                                <img src="/neda-gallery/gallery/screen_20260110_103405_hu_27e8aa8a97d7516d.webp" alt="Thumbnail" loading="lazy">
+                            </div>
+                        
+                            
+                            
+                            <div class="thumb-item"
+                                 data-index="20"
+                                 data-src="/neda-gallery/gallery/screen_20260110_103417_hu_4072812c3c2b6f72.webp">
+                                <img src="/neda-gallery/gallery/screen_20260110_103417_hu_10399aea9660be70.webp" alt="Thumbnail" loading="lazy">
+                            </div>
+                        
+                            
+                            
+                            <div class="thumb-item"
+                                 data-index="21"
+                                 data-src="/neda-gallery/gallery/screen_20260110_105356_hu_5820ba379c0080f1.webp">
+                                <img src="/neda-gallery/gallery/screen_20260110_105356_hu_cff1ce03b76e8147.webp" alt="Thumbnail" loading="lazy">
+                            </div>
+                        
+                            
+                            
+                            <div class="thumb-item"
+                                 data-index="22"
+                                 data-src="/neda-gallery/gallery/screen_20260110_143120_hu_98dccf353a5f1f29.webp">
+                                <img src="/neda-gallery/gallery/screen_20260110_143120_hu_6bf9a38f99fd846f.webp" alt="Thumbnail" loading="lazy">
+                            </div>
+                        
+                            
+                            
+                            <div class="thumb-item"
+                                 data-index="23"
+                                 data-src="/neda-gallery/gallery/screen_20260110_171544_hu_f42125834b90cebb.webp">
+                                <img src="/neda-gallery/gallery/screen_20260110_171544_hu_8e2908a19dbf05c5.webp" alt="Thumbnail" loading="lazy">
+                            </div>
+                        
+                            
+                            
+                            <div class="thumb-item"
+                                 data-index="24"
+                                 data-src="/neda-gallery/gallery/screen_20260110_174605_hu_6e4bb0fbc844fc4a.webp">
+                                <img src="/neda-gallery/gallery/screen_20260110_174605_hu_8cea1c070839d2a3.webp" alt="Thumbnail" loading="lazy">
+                            </div>
+                        
+                            
+                            
+                            <div class="thumb-item"
+                                 data-index="25"
+                                 data-src="/neda-gallery/gallery/screen_20260110_174651_hu_8a1d6a8b34ed1482.webp">
+                                <img src="/neda-gallery/gallery/screen_20260110_174651_hu_d826a9c5c114ac7.webp" alt="Thumbnail" loading="lazy">
+                            </div>
+                        
+                            
+                            
+                            <div class="thumb-item"
+                                 data-index="26"
+                                 data-src="/neda-gallery/gallery/screen_20260110_175414_hu_7e93c08f8d0c7c8c.webp">
+                                <img src="/neda-gallery/gallery/screen_20260110_175414_hu_f673c2b132e3d0e9.webp" alt="Thumbnail" loading="lazy">
+                            </div>
+                        
+                            
+                            
+                            <div class="thumb-item"
+                                 data-index="27"
+                                 data-src="/neda-gallery/gallery/screen_20260110_175853_hu_3b90e2fabf3e035f.webp">
+                                <img src="/neda-gallery/gallery/screen_20260110_175853_hu_529b093c0f455e44.webp" alt="Thumbnail" loading="lazy">
+                            </div>
+                        
+                            
+                            
+                            <div class="thumb-item"
+                                 data-index="28"
+                                 data-src="/neda-gallery/gallery/screen_20260112_114828_hu_7b3758b665dbd715.webp">
+                                <img src="/neda-gallery/gallery/screen_20260112_114828_hu_9bdfd5aafbc8e8b9.webp" alt="Thumbnail" loading="lazy">
+                            </div>
+                        
+                            
+                            
+                            <div class="thumb-item"
+                                 data-index="29"
+                                 data-src="/neda-gallery/gallery/screen_20260112_115239_hu_3573e1a7ee958bc4.webp">
+                                <img src="/neda-gallery/gallery/screen_20260112_115239_hu_fabaa7a2e26b0879.webp" alt="Thumbnail" loading="lazy">
+                            </div>
+                        
+                            
+                            
+                            <div class="thumb-item"
+                                 data-index="30"
+                                 data-src="/neda-gallery/gallery/screen_20260112_120355_hu_85ba548a252edf7.webp">
+                                <img src="/neda-gallery/gallery/screen_20260112_120355_hu_798f54c68de21d79.webp" alt="Thumbnail" loading="lazy">
+                            </div>
+                        
+                            
+                            
+                            <div class="thumb-item"
+                                 data-index="31"
+                                 data-src="/neda-gallery/gallery/screen_20260112_133136_hu_de235b5b46150004.webp">
+                                <img src="/neda-gallery/gallery/screen_20260112_133136_hu_85a2732539f32798.webp" alt="Thumbnail" loading="lazy">
+                            </div>
+                        
+                            
+                            
+                            <div class="thumb-item"
+                                 data-index="32"
+                                 data-src="/neda-gallery/gallery/screen_20260112_133358_hu_4055b2a4c9159764.webp">
+                                <img src="/neda-gallery/gallery/screen_20260112_133358_hu_8f989cac4030d6d7.webp" alt="Thumbnail" loading="lazy">
+                            </div>
+                        
+                            
+                            
+                            <div class="thumb-item"
+                                 data-index="33"
+                                 data-src="/neda-gallery/gallery/screen_20260112_133509_hu_c0e2662e05c452c5.webp">
+                                <img src="/neda-gallery/gallery/screen_20260112_133509_hu_83ee10cb9dda5688.webp" alt="Thumbnail" loading="lazy">
+                            </div>
+                        
+                            
+                            
+                            <div class="thumb-item"
+                                 data-index="34"
+                                 data-src="/neda-gallery/gallery/screen_20260112_133736_hu_d9f365ca270540ca.webp">
+                                <img src="/neda-gallery/gallery/screen_20260112_133736_hu_920d01ff9875718b.webp" alt="Thumbnail" loading="lazy">
+                            </div>
+                        
+                            
+                            
+                            <div class="thumb-item"
+                                 data-index="35"
+                                 data-src="/neda-gallery/gallery/screen_20260112_160014_hu_9152faeeb6e98421.webp">
+                                <img src="/neda-gallery/gallery/screen_20260112_160014_hu_35e78668ccb335f1.webp" alt="Thumbnail" loading="lazy">
+                            </div>
+                        
+                            
+                            
+                            <div class="thumb-item"
+                                 data-index="36"
+                                 data-src="/neda-gallery/gallery/screen_20260112_160026_hu_1f9698d4e5ba4907.webp">
+                                <img src="/neda-gallery/gallery/screen_20260112_160026_hu_e00ad8df8bcf35a5.webp" alt="Thumbnail" loading="lazy">
+                            </div>
+                        
+                            
+                            
+                            <div class="thumb-item"
+                                 data-index="37"
+                                 data-src="/neda-gallery/gallery/screen_20260112_184655_hu_86622749ca4d3b10.webp">
+                                <img src="/neda-gallery/gallery/screen_20260112_184655_hu_8718bdeb9d210ba1.webp" alt="Thumbnail" loading="lazy">
+                            </div>
+                        
+                            
+                            
+                            <div class="thumb-item"
+                                 data-index="38"
+                                 data-src="/neda-gallery/gallery/screen_20260112_192229_hu_85d2b67cc31054f7.webp">
+                                <img src="/neda-gallery/gallery/screen_20260112_192229_hu_6ba67e3860707983.webp" alt="Thumbnail" loading="lazy">
+                            </div>
+                        
+                    </div>
+                    <div class="viewer-text">
+                        <p>Welcome to my main collection!</p>
+<p>These are my personal favorites and classic items. Scroll down to see the full grid of products.</p>
+
+                    </div>
+                </aside>
+
+            </div>
+
+            
+            <div class="thumb-strip thumb-strip-inline">
+                
+                    
+                    
+                    <div class="thumb-item active"
+                         data-index="0"
+                         data-src="/neda-gallery/gallery/screen_20260108_081122_hu_b436b8405ea5f534.webp">
+                        <img src="/neda-gallery/gallery/screen_20260108_081122_hu_53333430ddcd6fe1.webp" alt="Thumbnail" loading="lazy">
+                    </div>
+                
+                    
+                    
+                    <div class="thumb-item"
+                         data-index="1"
+                         data-src="/neda-gallery/gallery/screen_20260108_081159_hu_f0423dc7058df04c.webp">
+                        <img src="/neda-gallery/gallery/screen_20260108_081159_hu_689bd9b451ffa53b.webp" alt="Thumbnail" loading="lazy">
+                    </div>
+                
+                    
+                    
+                    <div class="thumb-item"
+                         data-index="2"
+                         data-src="/neda-gallery/gallery/screen_20260108_082110_hu_15c8f725e4716c88.webp">
+                        <img src="/neda-gallery/gallery/screen_20260108_082110_hu_8e859792719151c3.webp" alt="Thumbnail" loading="lazy">
+                    </div>
+                
+                    
+                    
+                    <div class="thumb-item"
+                         data-index="3"
+                         data-src="/neda-gallery/gallery/screen_20260108_083348_hu_bd0f903e6ad1a606.webp">
+                        <img src="/neda-gallery/gallery/screen_20260108_083348_hu_8162c336b8335ed8.webp" alt="Thumbnail" loading="lazy">
+                    </div>
+                
+                    
+                    
+                    <div class="thumb-item"
+                         data-index="4"
+                         data-src="/neda-gallery/gallery/screen_20260108_083604_hu_ae6c238e702bd924.webp">
+                        <img src="/neda-gallery/gallery/screen_20260108_083604_hu_43e458ec0511a2c9.webp" alt="Thumbnail" loading="lazy">
+                    </div>
+                
+                    
+                    
+                    <div class="thumb-item"
+                         data-index="5"
+                         data-src="/neda-gallery/gallery/screen_20260108_084026_hu_6d181935483d4e76.webp">
+                        <img src="/neda-gallery/gallery/screen_20260108_084026_hu_ca201cc11038302b.webp" alt="Thumbnail" loading="lazy">
+                    </div>
+                
+                    
+                    
+                    <div class="thumb-item"
+                         data-index="6"
+                         data-src="/neda-gallery/gallery/screen_20260110_010826_hu_989aaee7f559798e.webp">
+                        <img src="/neda-gallery/gallery/screen_20260110_010826_hu_22d6fe6ce2c785a3.webp" alt="Thumbnail" loading="lazy">
+                    </div>
+                
+                    
+                    
+                    <div class="thumb-item"
+                         data-index="7"
+                         data-src="/neda-gallery/gallery/screen_20260110_014759_hu_7ea5044d13b39670.webp">
+                        <img src="/neda-gallery/gallery/screen_20260110_014759_hu_70ca3e1a5d4f4228.webp" alt="Thumbnail" loading="lazy">
+                    </div>
+                
+                    
+                    
+                    <div class="thumb-item"
+                         data-index="8"
+                         data-src="/neda-gallery/gallery/screen_20260110_022343_hu_af543440e5270f8e.webp">
+                        <img src="/neda-gallery/gallery/screen_20260110_022343_hu_8cf5d76f46e5b1a1.webp" alt="Thumbnail" loading="lazy">
+                    </div>
+                
+                    
+                    
+                    <div class="thumb-item"
+                         data-index="9"
+                         data-src="/neda-gallery/gallery/screen_20260110_022359_hu_c4e0d910a0d31cc9.webp">
+                        <img src="/neda-gallery/gallery/screen_20260110_022359_hu_d050094e3e2a1e13.webp" alt="Thumbnail" loading="lazy">
+                    </div>
+                
+                    
+                    
+                    <div class="thumb-item"
+                         data-index="10"
+                         data-src="/neda-gallery/gallery/screen_20260110_022410_hu_3c0af39ddd5f5f.webp">
+                        <img src="/neda-gallery/gallery/screen_20260110_022410_hu_e39d34773950071c.webp" alt="Thumbnail" loading="lazy">
+                    </div>
+                
+                    
+                    
+                    <div class="thumb-item"
+                         data-index="11"
+                         data-src="/neda-gallery/gallery/screen_20260110_022803_hu_e66d4d282c1adfb3.webp">
+                        <img src="/neda-gallery/gallery/screen_20260110_022803_hu_6d31707d38a31506.webp" alt="Thumbnail" loading="lazy">
+                    </div>
+                
+                    
+                    
+                    <div class="thumb-item"
+                         data-index="12"
+                         data-src="/neda-gallery/gallery/screen_20260110_023002_hu_ad7490ff256df9c8.webp">
+                        <img src="/neda-gallery/gallery/screen_20260110_023002_hu_d1a3b5b31602f682.webp" alt="Thumbnail" loading="lazy">
+                    </div>
+                
+                    
+                    
+                    <div class="thumb-item"
+                         data-index="13"
+                         data-src="/neda-gallery/gallery/screen_20260110_023028_hu_15b2baeb2acf8425.webp">
+                        <img src="/neda-gallery/gallery/screen_20260110_023028_hu_7dc42c17f07c0cb0.webp" alt="Thumbnail" loading="lazy">
+                    </div>
+                
+                    
+                    
+                    <div class="thumb-item"
+                         data-index="14"
+                         data-src="/neda-gallery/gallery/screen_20260110_085646_hu_c3818fa73f2efdc5.webp">
+                        <img src="/neda-gallery/gallery/screen_20260110_085646_hu_1a0735221c12ce54.webp" alt="Thumbnail" loading="lazy">
+                    </div>
+                
+                    
+                    
+                    <div class="thumb-item"
+                         data-index="15"
+                         data-src="/neda-gallery/gallery/screen_20260110_085739_hu_fce8f7c3f68924ae.webp">
+                        <img src="/neda-gallery/gallery/screen_20260110_085739_hu_7f0e6c927f316bdf.webp" alt="Thumbnail" loading="lazy">
+                    </div>
+                
+                    
+                    
+                    <div class="thumb-item"
+                         data-index="16"
+                         data-src="/neda-gallery/gallery/screen_20260110_092130_hu_f51712c27633d6c8.webp">
+                        <img src="/neda-gallery/gallery/screen_20260110_092130_hu_f8f177ed96b5dea.webp" alt="Thumbnail" loading="lazy">
+                    </div>
+                
+                    
+                    
+                    <div class="thumb-item"
+                         data-index="17"
+                         data-src="/neda-gallery/gallery/screen_20260110_093306_hu_dacfb0adf7e82fc7.webp">
+                        <img src="/neda-gallery/gallery/screen_20260110_093306_hu_5f1003f1689817fe.webp" alt="Thumbnail" loading="lazy">
+                    </div>
+                
+                    
+                    
+                    <div class="thumb-item"
+                         data-index="18"
+                         data-src="/neda-gallery/gallery/screen_20260110_103350_hu_290f5cb849a973ec.webp">
+                        <img src="/neda-gallery/gallery/screen_20260110_103350_hu_ecf54c037426abb8.webp" alt="Thumbnail" loading="lazy">
+                    </div>
+                
+                    
+                    
+                    <div class="thumb-item"
+                         data-index="19"
+                         data-src="/neda-gallery/gallery/screen_20260110_103405_hu_5fcd44da767f950b.webp">
+                        <img src="/neda-gallery/gallery/screen_20260110_103405_hu_27e8aa8a97d7516d.webp" alt="Thumbnail" loading="lazy">
+                    </div>
+                
+                    
+                    
+                    <div class="thumb-item"
+                         data-index="20"
+                         data-src="/neda-gallery/gallery/screen_20260110_103417_hu_4072812c3c2b6f72.webp">
+                        <img src="/neda-gallery/gallery/screen_20260110_103417_hu_10399aea9660be70.webp" alt="Thumbnail" loading="lazy">
+                    </div>
+                
+                    
+                    
+                    <div class="thumb-item"
+                         data-index="21"
+                         data-src="/neda-gallery/gallery/screen_20260110_105356_hu_5820ba379c0080f1.webp">
+                        <img src="/neda-gallery/gallery/screen_20260110_105356_hu_cff1ce03b76e8147.webp" alt="Thumbnail" loading="lazy">
+                    </div>
+                
+                    
+                    
+                    <div class="thumb-item"
+                         data-index="22"
+                         data-src="/neda-gallery/gallery/screen_20260110_143120_hu_98dccf353a5f1f29.webp">
+                        <img src="/neda-gallery/gallery/screen_20260110_143120_hu_6bf9a38f99fd846f.webp" alt="Thumbnail" loading="lazy">
+                    </div>
+                
+                    
+                    
+                    <div class="thumb-item"
+                         data-index="23"
+                         data-src="/neda-gallery/gallery/screen_20260110_171544_hu_f42125834b90cebb.webp">
+                        <img src="/neda-gallery/gallery/screen_20260110_171544_hu_8e2908a19dbf05c5.webp" alt="Thumbnail" loading="lazy">
+                    </div>
+                
+                    
+                    
+                    <div class="thumb-item"
+                         data-index="24"
+                         data-src="/neda-gallery/gallery/screen_20260110_174605_hu_6e4bb0fbc844fc4a.webp">
+                        <img src="/neda-gallery/gallery/screen_20260110_174605_hu_8cea1c070839d2a3.webp" alt="Thumbnail" loading="lazy">
+                    </div>
+                
+                    
+                    
+                    <div class="thumb-item"
+                         data-index="25"
+                         data-src="/neda-gallery/gallery/screen_20260110_174651_hu_8a1d6a8b34ed1482.webp">
+                        <img src="/neda-gallery/gallery/screen_20260110_174651_hu_d826a9c5c114ac7.webp" alt="Thumbnail" loading="lazy">
+                    </div>
+                
+                    
+                    
+                    <div class="thumb-item"
+                         data-index="26"
+                         data-src="/neda-gallery/gallery/screen_20260110_175414_hu_7e93c08f8d0c7c8c.webp">
+                        <img src="/neda-gallery/gallery/screen_20260110_175414_hu_f673c2b132e3d0e9.webp" alt="Thumbnail" loading="lazy">
+                    </div>
+                
+                    
+                    
+                    <div class="thumb-item"
+                         data-index="27"
+                         data-src="/neda-gallery/gallery/screen_20260110_175853_hu_3b90e2fabf3e035f.webp">
+                        <img src="/neda-gallery/gallery/screen_20260110_175853_hu_529b093c0f455e44.webp" alt="Thumbnail" loading="lazy">
+                    </div>
+                
+                    
+                    
+                    <div class="thumb-item"
+                         data-index="28"
+                         data-src="/neda-gallery/gallery/screen_20260112_114828_hu_7b3758b665dbd715.webp">
+                        <img src="/neda-gallery/gallery/screen_20260112_114828_hu_9bdfd5aafbc8e8b9.webp" alt="Thumbnail" loading="lazy">
+                    </div>
+                
+                    
+                    
+                    <div class="thumb-item"
+                         data-index="29"
+                         data-src="/neda-gallery/gallery/screen_20260112_115239_hu_3573e1a7ee958bc4.webp">
+                        <img src="/neda-gallery/gallery/screen_20260112_115239_hu_fabaa7a2e26b0879.webp" alt="Thumbnail" loading="lazy">
+                    </div>
+                
+                    
+                    
+                    <div class="thumb-item"
+                         data-index="30"
+                         data-src="/neda-gallery/gallery/screen_20260112_120355_hu_85ba548a252edf7.webp">
+                        <img src="/neda-gallery/gallery/screen_20260112_120355_hu_798f54c68de21d79.webp" alt="Thumbnail" loading="lazy">
+                    </div>
+                
+                    
+                    
+                    <div class="thumb-item"
+                         data-index="31"
+                         data-src="/neda-gallery/gallery/screen_20260112_133136_hu_de235b5b46150004.webp">
+                        <img src="/neda-gallery/gallery/screen_20260112_133136_hu_85a2732539f32798.webp" alt="Thumbnail" loading="lazy">
+                    </div>
+                
+                    
+                    
+                    <div class="thumb-item"
+                         data-index="32"
+                         data-src="/neda-gallery/gallery/screen_20260112_133358_hu_4055b2a4c9159764.webp">
+                        <img src="/neda-gallery/gallery/screen_20260112_133358_hu_8f989cac4030d6d7.webp" alt="Thumbnail" loading="lazy">
+                    </div>
+                
+                    
+                    
+                    <div class="thumb-item"
+                         data-index="33"
+                         data-src="/neda-gallery/gallery/screen_20260112_133509_hu_c0e2662e05c452c5.webp">
+                        <img src="/neda-gallery/gallery/screen_20260112_133509_hu_83ee10cb9dda5688.webp" alt="Thumbnail" loading="lazy">
+                    </div>
+                
+                    
+                    
+                    <div class="thumb-item"
+                         data-index="34"
+                         data-src="/neda-gallery/gallery/screen_20260112_133736_hu_d9f365ca270540ca.webp">
+                        <img src="/neda-gallery/gallery/screen_20260112_133736_hu_920d01ff9875718b.webp" alt="Thumbnail" loading="lazy">
+                    </div>
+                
+                    
+                    
+                    <div class="thumb-item"
+                         data-index="35"
+                         data-src="/neda-gallery/gallery/screen_20260112_160014_hu_9152faeeb6e98421.webp">
+                        <img src="/neda-gallery/gallery/screen_20260112_160014_hu_35e78668ccb335f1.webp" alt="Thumbnail" loading="lazy">
+                    </div>
+                
+                    
+                    
+                    <div class="thumb-item"
+                         data-index="36"
+                         data-src="/neda-gallery/gallery/screen_20260112_160026_hu_1f9698d4e5ba4907.webp">
+                        <img src="/neda-gallery/gallery/screen_20260112_160026_hu_e00ad8df8bcf35a5.webp" alt="Thumbnail" loading="lazy">
+                    </div>
+                
+                    
+                    
+                    <div class="thumb-item"
+                         data-index="37"
+                         data-src="/neda-gallery/gallery/screen_20260112_184655_hu_86622749ca4d3b10.webp">
+                        <img src="/neda-gallery/gallery/screen_20260112_184655_hu_8718bdeb9d210ba1.webp" alt="Thumbnail" loading="lazy">
+                    </div>
+                
+                    
+                    
+                    <div class="thumb-item"
+                         data-index="38"
+                         data-src="/neda-gallery/gallery/screen_20260112_192229_hu_85d2b67cc31054f7.webp">
+                        <img src="/neda-gallery/gallery/screen_20260112_192229_hu_6ba67e3860707983.webp" alt="Thumbnail" loading="lazy">
+                    </div>
+                
+            </div>
+
+            
+            <div class="viewer-text" style="display: block;">
+                <p>Welcome to my main collection!</p>
+<p>These are my personal favorites and classic items. Scroll down to see the full grid of products.</p>
+
+            </div>
+
+            <div class="scroll-hint">
+                Scroll for more
+                <svg width="20" height="20" viewBox="0 0 24 24"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6z"/></svg>
+            </div>
+
+        </section>
+
+        
+        <section class="snap-page grid-page" id="page-grid">
+
+            
+            <button class="grid-side-arrow left" id="grid-prev" aria-label="Previous page">&#8249;</button>
+            <button class="grid-side-arrow right" id="grid-next" aria-label="Next page">&#8250;</button>
+
+            <div class="grid-carousel" id="grid-carousel">
+                
+                
+                
+
+                
+                    
+                    
+                    
+
+                    <div class="grid-panel" data-page="1">
+                        
+                            
+                            
+                            
+                            <div class="grid-item"
+                                 data-index="0"
+                                 data-src="/neda-gallery/gallery/screen_20260108_081122_hu_b436b8405ea5f534.webp">
+                                <img src="/neda-gallery/gallery/screen_20260108_081122_hu_cfa71c871c17ba76.webp" alt="Gallery" loading="lazy">
+                            </div>
+                        
+                            
+                            
+                            
+                            <div class="grid-item"
+                                 data-index="1"
+                                 data-src="/neda-gallery/gallery/screen_20260108_081159_hu_f0423dc7058df04c.webp">
+                                <img src="/neda-gallery/gallery/screen_20260108_081159_hu_e7e5635ef66de36.webp" alt="Gallery" loading="lazy">
+                            </div>
+                        
+                            
+                            
+                            
+                            <div class="grid-item"
+                                 data-index="2"
+                                 data-src="/neda-gallery/gallery/screen_20260108_082110_hu_15c8f725e4716c88.webp">
+                                <img src="/neda-gallery/gallery/screen_20260108_082110_hu_75b2ecb9d227a446.webp" alt="Gallery" loading="lazy">
+                            </div>
+                        
+                            
+                            
+                            
+                            <div class="grid-item"
+                                 data-index="3"
+                                 data-src="/neda-gallery/gallery/screen_20260108_083348_hu_bd0f903e6ad1a606.webp">
+                                <img src="/neda-gallery/gallery/screen_20260108_083348_hu_a07b27d735013597.webp" alt="Gallery" loading="lazy">
+                            </div>
+                        
+                            
+                            
+                            
+                            <div class="grid-item"
+                                 data-index="4"
+                                 data-src="/neda-gallery/gallery/screen_20260108_083604_hu_ae6c238e702bd924.webp">
+                                <img src="/neda-gallery/gallery/screen_20260108_083604_hu_65c11f4b1ed1cd6a.webp" alt="Gallery" loading="lazy">
+                            </div>
+                        
+                            
+                            
+                            
+                            <div class="grid-item"
+                                 data-index="5"
+                                 data-src="/neda-gallery/gallery/screen_20260108_084026_hu_6d181935483d4e76.webp">
+                                <img src="/neda-gallery/gallery/screen_20260108_084026_hu_956311874cf3e19c.webp" alt="Gallery" loading="lazy">
+                            </div>
+                        
+                            
+                            
+                            
+                            <div class="grid-item"
+                                 data-index="6"
+                                 data-src="/neda-gallery/gallery/screen_20260110_010826_hu_989aaee7f559798e.webp">
+                                <img src="/neda-gallery/gallery/screen_20260110_010826_hu_171e02cbe638975.webp" alt="Gallery" loading="lazy">
+                            </div>
+                        
+                            
+                            
+                            
+                            <div class="grid-item"
+                                 data-index="7"
+                                 data-src="/neda-gallery/gallery/screen_20260110_014759_hu_7ea5044d13b39670.webp">
+                                <img src="/neda-gallery/gallery/screen_20260110_014759_hu_3b2e1aedf9c19f5a.webp" alt="Gallery" loading="lazy">
+                            </div>
+                        
+                            
+                            
+                            
+                            <div class="grid-item"
+                                 data-index="8"
+                                 data-src="/neda-gallery/gallery/screen_20260110_022343_hu_af543440e5270f8e.webp">
+                                <img src="/neda-gallery/gallery/screen_20260110_022343_hu_4bd9ffc109dd6940.webp" alt="Gallery" loading="lazy">
+                            </div>
+                        
+                            
+                            
+                            
+                            <div class="grid-item"
+                                 data-index="9"
+                                 data-src="/neda-gallery/gallery/screen_20260110_022359_hu_c4e0d910a0d31cc9.webp">
+                                <img src="/neda-gallery/gallery/screen_20260110_022359_hu_b4c83aaeb26907f4.webp" alt="Gallery" loading="lazy">
+                            </div>
+                        
+                            
+                            
+                            
+                            <div class="grid-item"
+                                 data-index="10"
+                                 data-src="/neda-gallery/gallery/screen_20260110_022410_hu_3c0af39ddd5f5f.webp">
+                                <img src="/neda-gallery/gallery/screen_20260110_022410_hu_7681484ce16c4ec7.webp" alt="Gallery" loading="lazy">
+                            </div>
+                        
+                            
+                            
+                            
+                            <div class="grid-item"
+                                 data-index="11"
+                                 data-src="/neda-gallery/gallery/screen_20260110_022803_hu_e66d4d282c1adfb3.webp">
+                                <img src="/neda-gallery/gallery/screen_20260110_022803_hu_5981daa20e46c1ed.webp" alt="Gallery" loading="lazy">
+                            </div>
+                        
+                    </div>
+                
+                    
+                    
+                    
+
+                    <div class="grid-panel" data-page="2">
+                        
+                            
+                            
+                            
+                            <div class="grid-item"
+                                 data-index="12"
+                                 data-src="/neda-gallery/gallery/screen_20260110_023002_hu_ad7490ff256df9c8.webp">
+                                <img src="/neda-gallery/gallery/screen_20260110_023002_hu_6bc2cfb3e06e94b0.webp" alt="Gallery" loading="lazy">
+                            </div>
+                        
+                            
+                            
+                            
+                            <div class="grid-item"
+                                 data-index="13"
+                                 data-src="/neda-gallery/gallery/screen_20260110_023028_hu_15b2baeb2acf8425.webp">
+                                <img src="/neda-gallery/gallery/screen_20260110_023028_hu_8bea8e6d0510158e.webp" alt="Gallery" loading="lazy">
+                            </div>
+                        
+                            
+                            
+                            
+                            <div class="grid-item"
+                                 data-index="14"
+                                 data-src="/neda-gallery/gallery/screen_20260110_085646_hu_c3818fa73f2efdc5.webp">
+                                <img src="/neda-gallery/gallery/screen_20260110_085646_hu_eff47f65f33d110e.webp" alt="Gallery" loading="lazy">
+                            </div>
+                        
+                            
+                            
+                            
+                            <div class="grid-item"
+                                 data-index="15"
+                                 data-src="/neda-gallery/gallery/screen_20260110_085739_hu_fce8f7c3f68924ae.webp">
+                                <img src="/neda-gallery/gallery/screen_20260110_085739_hu_626a4206aa99d8c2.webp" alt="Gallery" loading="lazy">
+                            </div>
+                        
+                            
+                            
+                            
+                            <div class="grid-item"
+                                 data-index="16"
+                                 data-src="/neda-gallery/gallery/screen_20260110_092130_hu_f51712c27633d6c8.webp">
+                                <img src="/neda-gallery/gallery/screen_20260110_092130_hu_bd1a4a221d84f448.webp" alt="Gallery" loading="lazy">
+                            </div>
+                        
+                            
+                            
+                            
+                            <div class="grid-item"
+                                 data-index="17"
+                                 data-src="/neda-gallery/gallery/screen_20260110_093306_hu_dacfb0adf7e82fc7.webp">
+                                <img src="/neda-gallery/gallery/screen_20260110_093306_hu_867991810a45239a.webp" alt="Gallery" loading="lazy">
+                            </div>
+                        
+                            
+                            
+                            
+                            <div class="grid-item"
+                                 data-index="18"
+                                 data-src="/neda-gallery/gallery/screen_20260110_103350_hu_290f5cb849a973ec.webp">
+                                <img src="/neda-gallery/gallery/screen_20260110_103350_hu_d48b5377a567aa56.webp" alt="Gallery" loading="lazy">
+                            </div>
+                        
+                            
+                            
+                            
+                            <div class="grid-item"
+                                 data-index="19"
+                                 data-src="/neda-gallery/gallery/screen_20260110_103405_hu_5fcd44da767f950b.webp">
+                                <img src="/neda-gallery/gallery/screen_20260110_103405_hu_79653a5be961dc8f.webp" alt="Gallery" loading="lazy">
+                            </div>
+                        
+                            
+                            
+                            
+                            <div class="grid-item"
+                                 data-index="20"
+                                 data-src="/neda-gallery/gallery/screen_20260110_103417_hu_4072812c3c2b6f72.webp">
+                                <img src="/neda-gallery/gallery/screen_20260110_103417_hu_e78d65a90eeb63fb.webp" alt="Gallery" loading="lazy">
+                            </div>
+                        
+                            
+                            
+                            
+                            <div class="grid-item"
+                                 data-index="21"
+                                 data-src="/neda-gallery/gallery/screen_20260110_105356_hu_5820ba379c0080f1.webp">
+                                <img src="/neda-gallery/gallery/screen_20260110_105356_hu_1518d3a8460ac4fc.webp" alt="Gallery" loading="lazy">
+                            </div>
+                        
+                            
+                            
+                            
+                            <div class="grid-item"
+                                 data-index="22"
+                                 data-src="/neda-gallery/gallery/screen_20260110_143120_hu_98dccf353a5f1f29.webp">
+                                <img src="/neda-gallery/gallery/screen_20260110_143120_hu_245919d6062c0b1f.webp" alt="Gallery" loading="lazy">
+                            </div>
+                        
+                            
+                            
+                            
+                            <div class="grid-item"
+                                 data-index="23"
+                                 data-src="/neda-gallery/gallery/screen_20260110_171544_hu_f42125834b90cebb.webp">
+                                <img src="/neda-gallery/gallery/screen_20260110_171544_hu_7dfab7549e681cc4.webp" alt="Gallery" loading="lazy">
+                            </div>
+                        
+                    </div>
+                
+                    
+                    
+                    
+
+                    <div class="grid-panel" data-page="3">
+                        
+                            
+                            
+                            
+                            <div class="grid-item"
+                                 data-index="24"
+                                 data-src="/neda-gallery/gallery/screen_20260110_174605_hu_6e4bb0fbc844fc4a.webp">
+                                <img src="/neda-gallery/gallery/screen_20260110_174605_hu_1eacb7d50866890c.webp" alt="Gallery" loading="lazy">
+                            </div>
+                        
+                            
+                            
+                            
+                            <div class="grid-item"
+                                 data-index="25"
+                                 data-src="/neda-gallery/gallery/screen_20260110_174651_hu_8a1d6a8b34ed1482.webp">
+                                <img src="/neda-gallery/gallery/screen_20260110_174651_hu_3910f0afc8ab58d5.webp" alt="Gallery" loading="lazy">
+                            </div>
+                        
+                            
+                            
+                            
+                            <div class="grid-item"
+                                 data-index="26"
+                                 data-src="/neda-gallery/gallery/screen_20260110_175414_hu_7e93c08f8d0c7c8c.webp">
+                                <img src="/neda-gallery/gallery/screen_20260110_175414_hu_d69cf4496ae41806.webp" alt="Gallery" loading="lazy">
+                            </div>
+                        
+                            
+                            
+                            
+                            <div class="grid-item"
+                                 data-index="27"
+                                 data-src="/neda-gallery/gallery/screen_20260110_175853_hu_3b90e2fabf3e035f.webp">
+                                <img src="/neda-gallery/gallery/screen_20260110_175853_hu_4a4afb77a08831aa.webp" alt="Gallery" loading="lazy">
+                            </div>
+                        
+                            
+                            
+                            
+                            <div class="grid-item"
+                                 data-index="28"
+                                 data-src="/neda-gallery/gallery/screen_20260112_114828_hu_7b3758b665dbd715.webp">
+                                <img src="/neda-gallery/gallery/screen_20260112_114828_hu_77c949c1494ee01.webp" alt="Gallery" loading="lazy">
+                            </div>
+                        
+                            
+                            
+                            
+                            <div class="grid-item"
+                                 data-index="29"
+                                 data-src="/neda-gallery/gallery/screen_20260112_115239_hu_3573e1a7ee958bc4.webp">
+                                <img src="/neda-gallery/gallery/screen_20260112_115239_hu_5c44b99176ab17cd.webp" alt="Gallery" loading="lazy">
+                            </div>
+                        
+                            
+                            
+                            
+                            <div class="grid-item"
+                                 data-index="30"
+                                 data-src="/neda-gallery/gallery/screen_20260112_120355_hu_85ba548a252edf7.webp">
+                                <img src="/neda-gallery/gallery/screen_20260112_120355_hu_38e11e4b8a916bf1.webp" alt="Gallery" loading="lazy">
+                            </div>
+                        
+                            
+                            
+                            
+                            <div class="grid-item"
+                                 data-index="31"
+                                 data-src="/neda-gallery/gallery/screen_20260112_133136_hu_de235b5b46150004.webp">
+                                <img src="/neda-gallery/gallery/screen_20260112_133136_hu_7652dee519feeb3e.webp" alt="Gallery" loading="lazy">
+                            </div>
+                        
+                            
+                            
+                            
+                            <div class="grid-item"
+                                 data-index="32"
+                                 data-src="/neda-gallery/gallery/screen_20260112_133358_hu_4055b2a4c9159764.webp">
+                                <img src="/neda-gallery/gallery/screen_20260112_133358_hu_7f5c2b249463559d.webp" alt="Gallery" loading="lazy">
+                            </div>
+                        
+                            
+                            
+                            
+                            <div class="grid-item"
+                                 data-index="33"
+                                 data-src="/neda-gallery/gallery/screen_20260112_133509_hu_c0e2662e05c452c5.webp">
+                                <img src="/neda-gallery/gallery/screen_20260112_133509_hu_a1afd2ef7132904a.webp" alt="Gallery" loading="lazy">
+                            </div>
+                        
+                            
+                            
+                            
+                            <div class="grid-item"
+                                 data-index="34"
+                                 data-src="/neda-gallery/gallery/screen_20260112_133736_hu_d9f365ca270540ca.webp">
+                                <img src="/neda-gallery/gallery/screen_20260112_133736_hu_e591f6e501094eb8.webp" alt="Gallery" loading="lazy">
+                            </div>
+                        
+                            
+                            
+                            
+                            <div class="grid-item"
+                                 data-index="35"
+                                 data-src="/neda-gallery/gallery/screen_20260112_160014_hu_9152faeeb6e98421.webp">
+                                <img src="/neda-gallery/gallery/screen_20260112_160014_hu_af15e3060f4022f.webp" alt="Gallery" loading="lazy">
+                            </div>
+                        
+                    </div>
+                
+                    
+                    
+                    
+
+                    <div class="grid-panel" data-page="4">
+                        
+                            
+                            
+                            
+                            <div class="grid-item"
+                                 data-index="36"
+                                 data-src="/neda-gallery/gallery/screen_20260112_160026_hu_1f9698d4e5ba4907.webp">
+                                <img src="/neda-gallery/gallery/screen_20260112_160026_hu_b2a2d26b85113e1a.webp" alt="Gallery" loading="lazy">
+                            </div>
+                        
+                            
+                            
+                            
+                            <div class="grid-item"
+                                 data-index="37"
+                                 data-src="/neda-gallery/gallery/screen_20260112_184655_hu_86622749ca4d3b10.webp">
+                                <img src="/neda-gallery/gallery/screen_20260112_184655_hu_755788b18a80ccb9.webp" alt="Gallery" loading="lazy">
+                            </div>
+                        
+                            
+                            
+                            
+                            <div class="grid-item"
+                                 data-index="38"
+                                 data-src="/neda-gallery/gallery/screen_20260112_192229_hu_85d2b67cc31054f7.webp">
+                                <img src="/neda-gallery/gallery/screen_20260112_192229_hu_8e462745e3a11e9.webp" alt="Gallery" loading="lazy">
+                            </div>
+                        
+                    </div>
+                
+            </div>
+
+        </section>
+
+    </div>
+
+    <script>
+    (function() {
+        
+        const images = [
+            
+            "\/neda-gallery\/gallery\/screen_20260108_081122_hu_b436b8405ea5f534.webp",
+            
+            "\/neda-gallery\/gallery\/screen_20260108_081159_hu_f0423dc7058df04c.webp",
+            
+            "\/neda-gallery\/gallery\/screen_20260108_082110_hu_15c8f725e4716c88.webp",
+            
+            "\/neda-gallery\/gallery\/screen_20260108_083348_hu_bd0f903e6ad1a606.webp",
+            
+            "\/neda-gallery\/gallery\/screen_20260108_083604_hu_ae6c238e702bd924.webp",
+            
+            "\/neda-gallery\/gallery\/screen_20260108_084026_hu_6d181935483d4e76.webp",
+            
+            "\/neda-gallery\/gallery\/screen_20260110_010826_hu_989aaee7f559798e.webp",
+            
+            "\/neda-gallery\/gallery\/screen_20260110_014759_hu_7ea5044d13b39670.webp",
+            
+            "\/neda-gallery\/gallery\/screen_20260110_022343_hu_af543440e5270f8e.webp",
+            
+            "\/neda-gallery\/gallery\/screen_20260110_022359_hu_c4e0d910a0d31cc9.webp",
+            
+            "\/neda-gallery\/gallery\/screen_20260110_022410_hu_3c0af39ddd5f5f.webp",
+            
+            "\/neda-gallery\/gallery\/screen_20260110_022803_hu_e66d4d282c1adfb3.webp",
+            
+            "\/neda-gallery\/gallery\/screen_20260110_023002_hu_ad7490ff256df9c8.webp",
+            
+            "\/neda-gallery\/gallery\/screen_20260110_023028_hu_15b2baeb2acf8425.webp",
+            
+            "\/neda-gallery\/gallery\/screen_20260110_085646_hu_c3818fa73f2efdc5.webp",
+            
+            "\/neda-gallery\/gallery\/screen_20260110_085739_hu_fce8f7c3f68924ae.webp",
+            
+            "\/neda-gallery\/gallery\/screen_20260110_092130_hu_f51712c27633d6c8.webp",
+            
+            "\/neda-gallery\/gallery\/screen_20260110_093306_hu_dacfb0adf7e82fc7.webp",
+            
+            "\/neda-gallery\/gallery\/screen_20260110_103350_hu_290f5cb849a973ec.webp",
+            
+            "\/neda-gallery\/gallery\/screen_20260110_103405_hu_5fcd44da767f950b.webp",
+            
+            "\/neda-gallery\/gallery\/screen_20260110_103417_hu_4072812c3c2b6f72.webp",
+            
+            "\/neda-gallery\/gallery\/screen_20260110_105356_hu_5820ba379c0080f1.webp",
+            
+            "\/neda-gallery\/gallery\/screen_20260110_143120_hu_98dccf353a5f1f29.webp",
+            
+            "\/neda-gallery\/gallery\/screen_20260110_171544_hu_f42125834b90cebb.webp",
+            
+            "\/neda-gallery\/gallery\/screen_20260110_174605_hu_6e4bb0fbc844fc4a.webp",
+            
+            "\/neda-gallery\/gallery\/screen_20260110_174651_hu_8a1d6a8b34ed1482.webp",
+            
+            "\/neda-gallery\/gallery\/screen_20260110_175414_hu_7e93c08f8d0c7c8c.webp",
+            
+            "\/neda-gallery\/gallery\/screen_20260110_175853_hu_3b90e2fabf3e035f.webp",
+            
+            "\/neda-gallery\/gallery\/screen_20260112_114828_hu_7b3758b665dbd715.webp",
+            
+            "\/neda-gallery\/gallery\/screen_20260112_115239_hu_3573e1a7ee958bc4.webp",
+            
+            "\/neda-gallery\/gallery\/screen_20260112_120355_hu_85ba548a252edf7.webp",
+            
+            "\/neda-gallery\/gallery\/screen_20260112_133136_hu_de235b5b46150004.webp",
+            
+            "\/neda-gallery\/gallery\/screen_20260112_133358_hu_4055b2a4c9159764.webp",
+            
+            "\/neda-gallery\/gallery\/screen_20260112_133509_hu_c0e2662e05c452c5.webp",
+            
+            "\/neda-gallery\/gallery\/screen_20260112_133736_hu_d9f365ca270540ca.webp",
+            
+            "\/neda-gallery\/gallery\/screen_20260112_160014_hu_9152faeeb6e98421.webp",
+            
+            "\/neda-gallery\/gallery\/screen_20260112_160026_hu_1f9698d4e5ba4907.webp",
+            
+            "\/neda-gallery\/gallery\/screen_20260112_184655_hu_86622749ca4d3b10.webp",
+            
+            "\/neda-gallery\/gallery\/screen_20260112_192229_hu_85d2b67cc31054f7.webp",
+            
+        ];
+        const totalImages = images.length;
+        let currentIndex = 0;
+
+        
+        const mainImg = document.getElementById('main-image');
+        const snapContainer = document.getElementById('gallery-snap');
+        const thumbsInline = document.querySelectorAll('.thumb-strip-inline .thumb-item');
+        const thumbsSidebar = document.querySelectorAll('.viewer-sidebar .thumb-item');
+        const allThumbs = document.querySelectorAll('.thumb-item');
+        const gridItems = document.querySelectorAll('.grid-item');
+        const gridCarousel = document.getElementById('grid-carousel');
+        const gridPanels = document.querySelectorAll('.grid-panel');
+        const gridPrev = document.getElementById('grid-prev');
+        const gridNext = document.getElementById('grid-next');
+
+        let currentGridPage = 0;
+        const totalGridPages = gridPanels.length;
+
+        
+
+        function updateMainImage(index) {
+            if (index < 0 || index >= totalImages) return;
+            currentIndex = index;
+
+            
+            mainImg.style.opacity = '0';
+            setTimeout(() => {
+                mainImg.src = images[index];
+                mainImg.style.opacity = '1';
+            }, 150);
+
+            
+            allThumbs.forEach(t => {
+                t.classList.toggle('active', parseInt(t.dataset.index) === index);
+            });
+        }
+
+        function scrollToViewer() {
+            snapContainer.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function updateGridNav() {
+            gridPrev.disabled = currentGridPage === 0;
+            gridNext.disabled = currentGridPage >= totalGridPages - 1;
+        }
+
+        function scrollGridTo(pageIndex) {
+            if (pageIndex < 0 || pageIndex >= totalGridPages) return;
+            currentGridPage = pageIndex;
+            gridPanels[pageIndex].scrollIntoView({ behavior: 'smooth', inline: 'start', block: 'nearest' });
+            updateGridNav();
+        }
+
+        
+        updateGridNav();
+
+        
+
+        
+        document.getElementById('prev-main').addEventListener('click', () => {
+            updateMainImage((currentIndex - 1 + totalImages) % totalImages);
+        });
+        document.getElementById('next-main').addEventListener('click', () => {
+            updateMainImage((currentIndex + 1) % totalImages);
+        });
+
+        
+        allThumbs.forEach(thumb => {
+            thumb.addEventListener('click', () => {
+                const idx = parseInt(thumb.dataset.index);
+                updateMainImage(idx);
+            });
+        });
+
+        
+        gridItems.forEach(item => {
+            item.addEventListener('click', () => {
+                const idx = parseInt(item.dataset.index);
+                updateMainImage(idx);
+                scrollToViewer();
+            });
+        });
+
+        
+        gridPrev.addEventListener('click', () => scrollGridTo(currentGridPage - 1));
+        gridNext.addEventListener('click', () => scrollGridTo(currentGridPage + 1));
+
+        
+        gridCarousel.addEventListener('scroll', () => {
+            const scrollLeft = gridCarousel.scrollLeft;
+            const panelWidth = gridCarousel.offsetWidth;
+            const newPage = Math.round(scrollLeft / panelWidth);
+            if (newPage !== currentGridPage) {
+                currentGridPage = newPage;
+                updateGridNav();
+            }
+        });
+
+        
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft') {
+                updateMainImage((currentIndex - 1 + totalImages) % totalImages);
+            } else if (e.key === 'ArrowRight') {
+                updateMainImage((currentIndex + 1) % totalImages);
+            }
+        });
+
+    })();
+    </script>
+
+</body>
+</html>

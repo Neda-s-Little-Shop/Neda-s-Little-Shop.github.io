@@ -1,0 +1,230 @@
+<!doctype html>
+<html lang="en">
+    <head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Sara Partizan</title>
+
+        
+        
+            
+            
+            
+            
+                
+                
+                <link rel="preload" as="image" href="/images/summer1_hu_c3e049630d1924f7.webp">
+            
+        
+
+        <style>
+             
+            * { margin: 0; padding: 0; box-sizing: border-box; }
+            body, html {
+                height: 100%; width: 100%;
+                overflow: hidden;
+                background: #000;
+                font-family: sans-serif;
+            }
+
+             
+            .nav-btn {
+                position: absolute;
+                top: 20px;
+                z-index: 100;
+                cursor: pointer;
+                background: rgba(0,0,0,0.5);
+                padding: 10px;
+                border-radius: 50%;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                transition: transform 0.2s, background 0.2s;
+                border: 2px solid rgba(255,255,255,0.2);
+            }
+            .nav-btn:hover {
+                transform: scale(1.1);
+                background: rgba(0,0,0,0.8);
+                border-color: white;
+            }
+             
+            .left-btn { left: 20px; }
+            .right-btn { right: 20px; }
+
+             
+            #bg-container {
+                position: absolute;
+                top: -5%; left: -5%;
+                width: 110%; height: 110%;
+                z-index: 1;
+                will-change: transform;
+            }
+            .bg-img {
+                position: absolute;
+                top: 0; left: 0;
+                width: 100%; height: 100%;
+                background-size: cover;
+                background-position: center;
+                opacity: 0;
+                animation: fadeLoop 18s infinite;
+            }
+            .bg-img:nth-child(1) { animation-delay: 0s; }
+            .bg-img:nth-child(2) { animation-delay: 6s; }
+            .bg-img:nth-child(3) { animation-delay: 12s; }
+
+            @keyframes fadeLoop {
+                0% { opacity: 0; } 10% { opacity: 1; } 33% { opacity: 1; } 43% { opacity: 0; } 100% { opacity: 0; }
+            }
+
+             
+            #center-stage {
+                position: relative;
+                z-index: 10;
+                height: 100%; width: 100%;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                pointer-events: none;
+            }
+
+            .cloud-wrapper {
+                position: relative;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+                cursor: pointer;
+                pointer-events: auto;
+                text-decoration: none;
+            }
+
+             
+            .center-img {
+                width: 100%; height: auto;
+                display: block;
+                transform: translate(var(--move-x), var(--move-y));
+                opacity: var(--base-op);
+                transition: opacity 0.4s ease, transform 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+            }
+
+            .cloud-wrapper:hover .center-img {
+                opacity: 1;
+                transform: translate(var(--move-x), var(--move-y)) scale(1.05);
+            }
+
+             
+            .cloud-text {
+                position: absolute;
+                width: 100%; height: 100%;
+                display: grid;
+                place-items: center;
+                z-index: 2;
+                pointer-events: none;
+            }
+
+            .content-default, .content-hover {
+                grid-area: 1 / 1;
+                text-align: center;
+                transition: opacity 0.4s ease, transform 0.4s ease;
+                will-change: opacity, transform;
+            }
+
+            .content-default { opacity: 1; transform: scale(1); }
+            .content-hover { opacity: 0; transform: scale(0.95); }
+
+            .cloud-wrapper:hover .content-default { opacity: 0; transform: scale(1.05); }
+            .cloud-wrapper:hover .content-hover { opacity: 1; transform: scale(1); }
+
+            h1 { font-size: 1.8rem; margin-bottom: 0.3rem; font-weight: 700; letter-spacing: 1px; }
+            p { font-size: 1rem; font-weight: 300; opacity: 0.9; }
+            .hover-text { font-size: 1.3rem; font-weight: 500; letter-spacing: 2px; }
+
+        </style>
+    </head>
+    <body>
+
+        
+        <a href="/" class="nav-btn left-btn" aria-label="Switch Landing">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="white"><path d="M6.99 11L3 15l3.99 4v-3H14v-2H6.99v-3zM21 9l-3.99-4v3H10v2h7.01v3L21 9z"/></svg>
+        </a>
+        
+
+        
+        <a href="/summer-sale/" class="nav-btn right-btn" aria-label="Go to Gallery">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="white"><path d="M4 11h5V5H4v6zm0 7h5v-6H4v6zm6 0h5v-6h-5v6zm6 0h5v-6h-5v6zm-6-7h5V5h-5v6zm6-6v6h5V5h-5z"/></svg>
+        </a>
+        
+
+        <div id="bg-container">
+            
+                
+                
+                
+                    
+                    
+                    <div class="bg-img" style="background-image: url('/images/summer1_hu_c3e049630d1924f7.webp');"></div>
+                
+            
+                
+                
+                
+                    
+                    
+                    <div class="bg-img" style="background-image: url('/images/2_hu_8ed175bf1f77b836.webp');"></div>
+                
+            
+                
+                
+                
+                    
+                    
+                    <div class="bg-img" style="background-image: url('/images/summer3_hu_d3a7d143411afe74.webp');"></div>
+                
+            
+        </div>
+
+        <div id="center-stage">
+            <a href="/summer-sale/"
+               class="cloud-wrapper"
+               style="width: 450px;">
+
+                <img src="/images/sun-logo.png"
+                     alt="Center Logo"
+                     class="center-img"
+                     style="
+                       --move-x: 0px;
+                       --move-y: 0px;
+                       --base-op: 0.8;
+                     ">
+
+                <div class="cloud-text" style="color: white;">
+                    <div class="content-default">
+                        <h1>Sara Partizan</h1>
+                        <p>Fresh Looks for the Season</p>
+                    </div>
+                    <div class="content-hover">
+                        <h1>Sara Partizan</h1>
+                        <span class="hover-text">Browse Gallery</span>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <script>
+            const bg = document.getElementById("bg-container");
+            let rafId = null;
+
+            document.addEventListener("mousemove", (e) => {
+                if (rafId) return;
+                rafId = requestAnimationFrame(() => {
+                    const x = e.clientX / window.innerWidth;
+                    const y = e.clientY / window.innerHeight;
+                    const moveX = -3 + x * 6;
+                    const moveY = -3 + y * 6;
+                    bg.style.transform = `translate3d(${moveX}%, ${moveY}%, 0)`;
+                    rafId = null;
+                });
+            });
+        </script>
+    </body>
+</html>
